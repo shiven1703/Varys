@@ -196,6 +196,12 @@ variables had been exported to every CI step. Those variables now apply only to
 the Compose smoke step; local `make check` again passes 19 unit tests while the
 strict unknown-setting guard remains unchanged.
 
+The subsequent Compose smoke failure was traced to `app.sh` invoking Alembic
+without passing `VARYS_DATABASE_URL`, so the app exited before its liveness
+health check. The entrypoint now uses the existing validated
+`upgrade_database()` helper, and smoke cleanup prints service logs on a future
+failure before removing containers.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A

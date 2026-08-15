@@ -129,8 +129,9 @@ Resolved and recorded:
 used by both `app` and `worker`. `compose.yaml` defines app, worker, internal
 PostgreSQL, persistent data volumes, and an optional disabled-by-default
 `cloudflared` profile. FastAPI serves the Angular bundle at `/`; `/api/` and
-`/files/` remain reserved server routes. No image, service, volume, or network
-has been daemon-validated in this Codex session.
+`/files/` remain reserved server routes. The app entrypoint applies migrations
+through the validated database helper before starting FastAPI. No image,
+service, volume, or network has been daemon-validated in this Codex session.
 
 The locked target topology is documented: FastAPI app and dedicated worker share
 one Python codebase and application image, PostgreSQL is the only dispatch

@@ -2,7 +2,13 @@
 set -eu
 
 cleanup() {
-    docker compose down --volumes --remove-orphans
+    exit_code=$?
+    if [ "$exit_code" -ne 0 ]; then
+        docker compose ps || true
+        docker compose logs --no-color || true
+    fi
+    docker compose down --volumes --remove-orphans || true
+    exit "$exit_code"
 }
 
 trap cleanup EXIT
