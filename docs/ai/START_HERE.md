@@ -6,9 +6,11 @@ phase evidence is `docs/implementation/phases/phase-1.md`.
 
 ## Current boundary
 
-Phase 1 is `IN_PROGRESS` in Iteration 1A. Phase 0 was owner-approved on
-2026-08-15. Only the owner can approve a phase: Codex records evidence and may set
-`USER_APPROVAL_PENDING`, but never `APPROVED`.
+Phase 1 is `IN_PROGRESS`. Iterations 1A through 1H are owner-accepted;
+Iteration 1I implementation and local acceptance are complete, with owner
+acceptance and full GitHub Actions evidence pending. Phase 0 was owner-approved
+on 2026-08-15. Only the owner can approve a phase: Codex records evidence and
+may set `USER_APPROVAL_PENDING`, but never `APPROVED`.
 
 ## Commands
 

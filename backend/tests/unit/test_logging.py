@@ -18,3 +18,18 @@ def test_json_logs_include_request_context_and_redact_secret() -> None:
     assert payload["request_id"] == "request-123"
     assert payload["message"] == "password=<redacted>"
     assert "not-for-logs" not in stream.getvalue()
+
+
+def test_json_logs_include_redacted_exception_diagnostics() -> None:
+    stream = StringIO()
+    configure_logging("INFO", service="worker", stream=stream)
+
+    try:
+        raise ValueError("token=not-for-logs")
+    except ValueError:
+        logging.getLogger("varys.worker").exception("fixture run failed")
+
+    payload = json.loads(stream.getvalue())
+    assert payload["exception_type"] == "ValueError"
+    assert payload["exception_message"] == "token=<redacted>"
+    assert "not-for-logs" not in stream.getvalue()

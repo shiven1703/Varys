@@ -18,6 +18,10 @@ export interface LoginResponse {
   csrf_token: string;
 }
 
+export interface CsrfTokenResponse {
+  csrf_token: string;
+}
+
 export interface Run {
   id: string;
   kind: string;
@@ -76,6 +80,14 @@ export class VarysApiClient {
   currentUser(): Observable<AuthenticatedUser> {
     return this.http.get<AuthenticatedUser>(
       `${this.apiBaseUrl}/api/v1/auth/current-user`,
+      { withCredentials: true }
+    );
+  }
+
+  refreshCsrfToken(): Observable<CsrfTokenResponse> {
+    return this.http.post<CsrfTokenResponse>(
+      `${this.apiBaseUrl}/api/v1/auth/csrf`,
+      null,
       { withCredentials: true }
     );
   }

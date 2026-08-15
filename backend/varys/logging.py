@@ -28,6 +28,9 @@ class JsonFormatter(logging.Formatter):
             "source_type": getattr(record, "source_type", None),
             "message": _redact(record.getMessage()),
         }
+        if record.exc_info is not None and record.exc_info[1] is not None:
+            payload["exception_type"] = type(record.exc_info[1]).__name__
+            payload["exception_message"] = _redact(str(record.exc_info[1]))
         return json.dumps(payload, separators=(",", ":"), sort_keys=True)
 
 

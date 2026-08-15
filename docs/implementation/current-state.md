@@ -22,9 +22,10 @@ Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
 are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
 workspaces, and 1D parsers and canonical writers were owner-accepted on
 2026-08-15. Iterations 1E package publication, 1F publication failure handling,
-and 1G APIs were owner-accepted on 2026-08-15. Iteration 1H daily UI is in
-owner-accepted on 2026-08-15. Iteration 1I fixture workflow and vertical-slice
-acceptance are in progress.
+and 1G APIs were owner-accepted on 2026-08-15. Iteration 1H daily UI was
+owner-accepted on 2026-08-15. Iteration 1I fixture workflow implementation,
+local acceptance, and owner acceptance completed on 2026-08-15; the full
+GitHub Actions run remains pending.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -112,42 +113,51 @@ remains pending until the Phase 1 acceptance suite passes.
   setup command. Re-running the demo preserves an existing administrator, and
   direct duplicate administrator creation now returns a concise validation
   error instead of a database traceback.
+- Iteration 1I composes the fixture adapters, strict parsers, canonical writers,
+  immutable raw storage, package publisher, PostgreSQL worker dispatch, and UI
+  into the real login-to-download slice for fixture date `2026-08-14`. The UI
+  polls nonterminal runs, restores CSRF state safely, and remains responsive
+  during concurrent authenticated refreshes. App and worker boot independently
+  initialize the storage layout. Worker failures include redacted exception
+  diagnostics and run IDs. Real-stack Playwright verifies login, progress,
+  ready ZIP download and archive/checksum inspection, incomplete and
+  unauthenticated download rejection, and logout revocation. Clean Compose
+  acceptance also proves migration head `0005`, seven isolated PostgreSQL
+  integrations, and expired-lease recovery across app/worker restarts.
 
 ## Not implemented
 
-- Iteration 1I and all Phase 2 through Phase 7 work.
-- Product workflows beyond the Phase 0 test baseline.
+- Phase 2 through Phase 7 work.
+- Live NSE acquisition and product workflows beyond the Phase 1 fixture slice.
 
 ## Known failing tests
 
-No known failing tests. GitHub Actions passed after the Compose smoke workflow
-was given its required CI-only `VARYS_SESSION_SECRET`, including Compose smoke,
-Playwright, dependency audits, and Trivy.
+No known failing tests. Iteration 1I local and clean-Compose acceptance pass;
+the GitHub Actions run for the accepted Iteration 1I changes is still pending.
+The previously committed CI baseline passed Compose smoke, Playwright,
+dependency audits, and Trivy.
 
 ## Known limitations
 
-- A login/session restart is required before Phase 0 if the user has not yet
-  started a fresh session since Docker-group membership was added.
 - `/home/shivam/.profile` contains a stale VS Code environment source at line
   29. It emits a warning for login shells but does not block project commands.
 
 ## Open risks
 
-- Docker client access remains unavailable in the current Codex session because
-  it has not inherited Docker-group membership. Phase 0 Docker validation is
-  nevertheless complete through the successful main CI run.
-- Host resources are suitable for bootstrap, but later image builds should be
-  monitored on this 7.2 GiB RAM development machine.
+- Docker client access remains unavailable in the current Codex sandbox. The
+  owner terminal now has direct Docker access and completed the Phase 1 clean
+  Compose acceptance run.
+- Host resources handled repeated cached builds and the complete Phase 1 local
+  acceptance run; later, larger images should still be monitored on this
+  7.2 GiB RAM development machine.
 - No unresolved cross-document contradiction is known after the 2026-08-15
   planning alignment audit. Phase 1 must surface any new ambiguity before it
   changes a versioned contract or dependency baseline.
-- This Codex session cannot access the Docker daemon, but the user completed a
-  clean host-terminal Compose run on 2026-08-15: migrations, all four
-  PostgreSQL integration tests, app/worker health checks, and cleanup passed.
-- Migrations `0004_package_publication` and `0005_daily_run_trade_date` have
-  only local SQL-rendering evidence in this session; their PostgreSQL
-  publication/reconciliation and authenticated API tests require the next
-  Compose or CI run for live-database evidence.
+- The owner completed a clean isolated host-terminal Compose run on 2026-08-15:
+  migration head `0005`, all seven PostgreSQL integration tests, app/worker
+  health, controlled restart recovery, four real-stack Playwright tests, and
+  clean volume teardown passed. GitHub Actions remains required before the
+  Phase 1 approval boundary.
 
 ## Planning alignment review
 
@@ -238,9 +248,9 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1I only. Review affected contract, schema, toolchain,
-and dependency versions in every increment; update their versioned records
-whenever a change is made.
+Commit owner-accepted Iteration 1I and run the full GitHub Actions suite. If CI
+passes, update Phase 1 to `USER_APPROVAL_PENDING` and wait for explicit owner
+approval. Do not begin Phase 2 in the same increment.
 
 ## Build performance
 
@@ -248,7 +258,7 @@ The Dockerfile retains the pinned pip and npm dependency model. Its BuildKit
 package-cache mounts preserve downloaded npm tarballs and Python wheels across
 rebuilds without placing cache files in the final application image. The first
 build still downloads base images and dependencies; subsequent builds reuse the
-caches unless the Docker builder cache is pruned. The changed Dockerfile awaits
-caches unless the Docker builder cache is pruned. GitHub Actions Compose smoke
-passed with the changed Dockerfile; this Codex session still has no Docker
-daemon access.
+caches unless the Docker builder cache is pruned. Repeated Phase 1 acceptance
+builds reused both caches successfully. GitHub Actions Compose smoke passed
+with the changed Dockerfile; this Codex sandbox still has no Docker daemon
+access.

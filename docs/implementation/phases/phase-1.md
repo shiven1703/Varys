@@ -14,7 +14,8 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1I in progress: fixture workflow and vertical-slice acceptance.
+- Iteration 1I implementation, local acceptance, and owner acceptance complete;
+  full GitHub Actions evidence pending.
 
 ## Out of scope
 
@@ -216,18 +217,71 @@ Verified locally:
 The owner accepted Iteration 1H on 2026-08-15. No Phase 1 acceptance status is
 claimed.
 
+Iteration 1I composes the accepted Phase 1 components into the fixture-only
+daily workflow for `2026-08-14`. The worker now polls PostgreSQL, reconciles
+and recovers dispatch state, claims one run transactionally, persists immutable
+raw fixtures and canonical workspace CSVs, publishes a verified ready ZIP, and
+finishes the run at a safe checkpoint. Both processes initialize the required
+storage layout independently. Auth session writes complete in a serialized,
+short transaction before run/package database work, preventing concurrent UI
+refreshes from blocking the app event loop. The UI restores a fresh CSRF token
+and polls nonterminal runs once per second until completion. Structured worker
+errors include a redacted exception type/message and run ID.
+
+The former shell-only Playwright test is replaced by the real browser slice. It
+creates a runtime-random administrator without persisting credentials, logs in,
+starts the fixture run, observes created/claimed/completed events, downloads the
+ready ZIP, and verifies the archive plus the API checksum with the backend
+inspector. Separate browser cases prove incomplete and unauthenticated package
+downloads are blocked and logout revokes access. Compose smoke uses a separate
+`varys_test` database with per-test cleanup so the real worker cannot consume
+integration fixtures. Its controlled restart check leaves a run with an
+expired claimed lease, restarts app/worker, and requires recovery through ready
+publication.
+
+Verified locally and in the owner Docker terminal:
+
+- `make format` and `make check` — 42 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `make test-failure-injection` — 3 failure-injection tests passed.
+- `npm --prefix frontend run lint` and `npm --prefix frontend run build`.
+- `npm --prefix frontend test -- --watch=false` — 3 frontend unit tests passed,
+  including nonterminal polling and incomplete-package download guarding.
+- `npm --prefix frontend run test:e2e` — 4 real-stack Playwright tests passed.
+- `sh scripts/ci/restart-recovery.sh` — expired claimed run recovered and
+  completed through a ready package after app/worker restart.
+- `COMPOSE_PROJECT_NAME=varys-acceptance VARYS_RUN_E2E=1 make compose-smoke`
+  — fresh image/database/storage, migration head `0005`, 7 PostgreSQL
+  integration tests, restart recovery, 4 Playwright tests, and isolated volume
+  cleanup passed.
+- The owner-downloaded ZIP's three declared artifacts matched manifest sizes,
+  row counts, and SHA-256 values; both market CSVs matched golden files byte for
+  byte, and all raw provenance hashes matched the controlled fixtures.
+- `.venv/bin/alembic -c alembic.ini heads` — one head,
+  `0005_daily_run_trade_date`.
+- `git diff --check`.
+
+The owner accepted Iteration 1I on 2026-08-15. The full GitHub Actions run
+remains required after this increment is committed; no Phase 1 acceptance
+status is claimed yet.
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
-owner-approved on 2026-08-15. The owner accepted Iteration 1A on 2026-08-15.
-Its local PostgreSQL and Compose evidence remains pending for the full Phase 1
-acceptance suite.
+owner-approved on 2026-08-15. Iterations 1A through 1I are owner-accepted.
 
 Iteration 1B began after the owner accepted 1A. The owner accepted its initial
 domain checkpoint on 2026-08-15. The scoped implementation now has its
 migration, database constraints, tests, and worker integration. Its clean
 Compose migration and PostgreSQL integration suite passed on 2026-08-15. It is
 therefore owner-accepted on 2026-08-15.
+
+The clean Iteration 1I Compose run now supplies live PostgreSQL evidence for
+authentication, dispatch, migration head `0005`, publication/reconciliation,
+authenticated APIs, restart recovery, and browser login-to-download. All local
+Phase 1 acceptance layers pass, and the owner accepted Iteration 1I on
+2026-08-15. Full GitHub Actions evidence for the Iteration 1I commit remains
+outstanding.
 
 ## Version maintenance
 
@@ -267,10 +321,16 @@ contract version. Its APIs are additive within the locked `/api/v1` and
 Iteration 1H adds no dependency, toolchain, API, output-schema, parser-format,
 contract, or migration version. It consumes the existing locked API surface.
 
+Iteration 1I adds no dependency, toolchain, output-schema, parser-format,
+contract, or migration version. The CSRF refresh endpoint is additive within
+the locked `/api/v1` namespace. Existing pinned Python, Angular, Playwright,
+Docker, PostgreSQL, and schema versions remain unchanged.
+
 ## Next actions
 
-Implement Iteration 1I fixture workflow and Playwright vertical-slice
-acceptance. Do not start Phase 2 work in the same increment.
+Commit owner-accepted Iteration 1I and run the full GitHub Actions suite. If CI
+passes, set Phase 1 to `USER_APPROVAL_PENDING` and wait for explicit owner
+approval. Do not start Phase 2 work in the same increment.
 
 ## Owner approval
 

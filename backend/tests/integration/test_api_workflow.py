@@ -107,11 +107,22 @@ async def _exercise_api(
                 PackageIdentity(uuid4(), PackageKind.DAILY, 2),
             )
 
-        packages = await client.get("/api/v1/packages")
+        packages, concurrent_run, concurrent_events, live = await asyncio.wait_for(
+            asyncio.gather(
+                client.get("/api/v1/packages"),
+                client.get(f"/api/v1/runs/{run_id}"),
+                client.get(f"/api/v1/runs/{run_id}/events"),
+                client.get("/api/health/live"),
+            ),
+            timeout=5,
+        )
         package_response = await client.get(f"/api/v1/packages/{identity.id}")
         download = await client.get(f"/files/packages/{identity.id}")
         incomplete_download = await client.get(f"/files/packages/{incomplete.id}")
         assert packages.status_code == 200
+        assert concurrent_run.status_code == 200
+        assert concurrent_events.status_code == 200
+        assert live.status_code == 200
         assert package_response.status_code == 200
         assert download.status_code == 200
 

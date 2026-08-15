@@ -92,6 +92,12 @@ Iteration 1H uses only the existing pinned Angular, RxJS, and browser-platform
 dependencies. No dependency, toolchain, API, output-schema, parser-format,
 contract, or migration version changes are required.
 
+Iteration 1I uses only the existing pinned Python, Angular, Playwright,
+PostgreSQL, and Docker toolchains. No dependency, toolchain, output-schema,
+parser-format, contract, or migration version changes are required. Its CSRF
+refresh endpoint is additive within `/api/v1`; the fixture workflow implements
+the already-locked source, CSV, filesystem, run, and package contracts.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

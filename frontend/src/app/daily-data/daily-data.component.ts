@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
@@ -7,6 +7,13 @@ import { AuthService } from '../core/auth.service';
 import { DataPackage, Run, RunEvent, VarysApiClient } from '../core/api-client';
 
 const RUN_STORAGE_KEY = 'varys.daily-run-id';
+const TERMINAL_RUN_STATES = new Set([
+  'COMPLETED',
+  'COMPLETED_WITH_WARNINGS',
+  'FAILED',
+  'CANCELLED'
+]);
+const REFRESH_INTERVAL_MS = 1000;
 
 @Component({
   selector: 'app-daily-data',
@@ -14,8 +21,8 @@ const RUN_STORAGE_KEY = 'varys.daily-run-id';
   templateUrl: './daily-data.component.html',
   styleUrl: './daily-data.component.scss'
 })
-export class DailyDataComponent implements OnInit {
-  protected tradeDate = today();
+export class DailyDataComponent implements OnInit, OnDestroy {
+  protected tradeDate = '2026-08-14';
   protected readonly run = signal<Run | null>(null);
   protected readonly events = signal<RunEvent[]>([]);
   protected readonly packages = signal<DataPackage[]>([]);
@@ -28,6 +35,7 @@ export class DailyDataComponent implements OnInit {
       ? []
       : this.packages().filter((dataPackage) => dataPackage.run_id === run.id);
   });
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly api: VarysApiClient,
@@ -36,6 +44,10 @@ export class DailyDataComponent implements OnInit {
 
   ngOnInit(): void {
     this.refresh();
+  }
+
+  ngOnDestroy(): void {
+    this.cancelScheduledRefresh();
   }
 
   protected startRun(): void {
@@ -65,6 +77,7 @@ export class DailyDataComponent implements OnInit {
     if (this.refreshing()) {
       return;
     }
+    this.cancelScheduledRefresh();
     this.refreshing.set(true);
     this.error.set(null);
     const runId = sessionStorage.getItem(RUN_STORAGE_KEY);
@@ -92,6 +105,7 @@ export class DailyDataComponent implements OnInit {
           this.tradeDate = result.run.trade_date;
         }
         this.refreshing.set(false);
+        this.scheduleRefresh(result.run);
       },
       error: (error: unknown) => this.finishRefreshWithError(error, runId)
     });
@@ -127,14 +141,33 @@ export class DailyDataComponent implements OnInit {
       sessionStorage.removeItem(RUN_STORAGE_KEY);
       this.run.set(null);
       this.events.set([]);
+      this.refreshing.set(false);
+      this.loadPackagesAfterStaleRun();
+      return;
     }
     this.error.set(apiErrorMessage(error));
     this.refreshing.set(false);
   }
-}
 
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  private loadPackagesAfterStaleRun(): void {
+    this.api.listPackages().subscribe({
+      next: (packages) => this.packages.set(packages),
+      error: (error: unknown) => this.error.set(apiErrorMessage(error))
+    });
+  }
+
+  private scheduleRefresh(run: Run): void {
+    if (!TERMINAL_RUN_STATES.has(run.state)) {
+      this.refreshTimer = setTimeout(() => this.refresh(), REFRESH_INTERVAL_MS);
+    }
+  }
+
+  private cancelScheduledRefresh(): void {
+    if (this.refreshTimer !== null) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
 }
 
 function apiErrorMessage(error: unknown): string {

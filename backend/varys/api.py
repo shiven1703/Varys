@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import argparse
 import logging
-from collections.abc import Awaitable, Callable, Generator
+from asyncio import Lock
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import AbstractContextManager
 from datetime import UTC, date, datetime
 from mimetypes import guess_type
@@ -25,6 +26,7 @@ from varys.auth import (
     current_user,
     login,
     revoke_session,
+    rotate_csrf_token,
     validate_csrf_token,
 )
 from varys.config import Settings, load_settings
@@ -39,7 +41,12 @@ from varys.runs import (
     request_action,
     resume_paused_run,
 )
-from varys.storage import StoragePaths, check_storage_readiness, sha256_file
+from varys.storage import (
+    StoragePaths,
+    check_storage_readiness,
+    initialize_storage,
+    sha256_file,
+)
 
 _LOGGER = logging.getLogger("varys.api")
 
@@ -56,6 +63,10 @@ class UserResponse(BaseModel):
 
 class LoginResponse(BaseModel):
     user: UserResponse
+    csrf_token: str
+
+
+class CsrfTokenResponse(BaseModel):
     csrf_token: str
 
 
@@ -105,9 +116,14 @@ def create_app(
     settings: Settings | None = None, frontend_directory: Path | None = None
 ) -> FastAPI:
     application_settings = settings or load_settings()
+    if application_settings.data_root is not None:
+        initialize_storage(StoragePaths.from_root(application_settings.data_root))
     app = FastAPI(title="Varys")
     app.state.settings = application_settings
     app.state.session_factory = _session_factory(application_settings)
+    # V1 runs one app process. Serialize its short session writes so concurrent
+    # dashboard reads cannot wait on each other's PostgreSQL session-row locks.
+    app.state.auth_lock = Lock()
 
     @app.middleware("http")
     async def request_context(
@@ -141,7 +157,7 @@ def create_app(
             raise HTTPException(status_code=503, detail=storage_readiness.reason)
         return {"status": "ok"}
 
-    def database_session() -> Generator[Session, None, None]:
+    async def database_session() -> AsyncGenerator[Session, None]:
         factory: sessionmaker[Session] | None = app.state.session_factory
         if factory is None:
             raise HTTPException(
@@ -150,51 +166,65 @@ def create_app(
         with factory.begin() as database:
             yield database
 
-    def authenticated_user(
-        request: Request, database: Session = Depends(database_session)
+    async def authenticated_user(
+        request: Request,
     ) -> User:
         session_token = request.cookies.get(SESSION_COOKIE_NAME)
         if session_token is None:
             raise HTTPException(status_code=401, detail="Authentication required")
-        user = current_user(
-            database, session_token, _session_secret(application_settings)
-        )
-        if user is None:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return user
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                user = current_user(
+                    database, session_token, _session_secret(application_settings)
+                )
+                if user is None:
+                    raise HTTPException(
+                        status_code=401, detail="Authentication required"
+                    )
+                return user
 
-    def csrf_protected(
+    async def csrf_protected(
         request: Request,
-        database: Session = Depends(database_session),
-        _user: User = Depends(authenticated_user),
-    ) -> None:
+    ) -> User:
         session_token = request.cookies.get(SESSION_COOKIE_NAME)
         csrf_token = request.headers.get(CSRF_HEADER_NAME)
-        if (
-            session_token is None
-            or csrf_token is None
-            or not validate_csrf_token(
-                database,
-                session_token,
-                csrf_token,
-                _session_secret(application_settings),
-            )
-        ):
+        if session_token is None or csrf_token is None:
             raise HTTPException(status_code=403, detail="CSRF validation failed")
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                user = current_user(
+                    database, session_token, _session_secret(application_settings)
+                )
+                if user is None or not validate_csrf_token(
+                    database,
+                    session_token,
+                    csrf_token,
+                    _session_secret(application_settings),
+                ):
+                    raise HTTPException(
+                        status_code=403, detail="CSRF validation failed"
+                    )
+                return user
 
     @app.post("/api/v1/auth/login", response_model=LoginResponse)
     async def login_endpoint(
         credentials: LoginRequest,
         response: Response,
-        database: Session = Depends(database_session),
     ) -> LoginResponse:
         session_secret = _session_secret(application_settings)
-        authenticated = login(
-            database, credentials.username, credentials.password, session_secret
-        )
-        if authenticated is None:
-            raise HTTPException(status_code=401, detail="Invalid username or password")
-        user, session_token, csrf_token = authenticated
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                authenticated = login(
+                    database,
+                    credentials.username,
+                    credentials.password,
+                    session_secret,
+                )
+                if authenticated is None:
+                    raise HTTPException(
+                        status_code=401, detail="Invalid username or password"
+                    )
+                user, session_token, csrf_token = authenticated
         response.set_cookie(
             key=SESSION_COOKIE_NAME,
             value=session_token,
@@ -211,13 +241,34 @@ def create_app(
         session_token = request.cookies.get(SESSION_COOKIE_NAME)
         if session_token is None:
             raise HTTPException(status_code=401, detail="Authentication required")
-        with _database_transaction(app.state.session_factory) as database:
-            user = current_user(
-                database, session_token, _session_secret(application_settings)
-            )
-            if user is None:
-                raise HTTPException(status_code=401, detail="Authentication required")
-            return _user_response(user)
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                user = current_user(
+                    database, session_token, _session_secret(application_settings)
+                )
+                if user is None:
+                    raise HTTPException(
+                        status_code=401, detail="Authentication required"
+                    )
+                return _user_response(user)
+
+    @app.post("/api/v1/auth/csrf", response_model=CsrfTokenResponse)
+    async def refresh_csrf_token_endpoint(
+        request: Request,
+    ) -> CsrfTokenResponse:
+        session_token = request.cookies.get(SESSION_COOKIE_NAME)
+        if session_token is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                csrf_token = rotate_csrf_token(
+                    database, session_token, _session_secret(application_settings)
+                )
+                if csrf_token is None:
+                    raise HTTPException(
+                        status_code=401, detail="Authentication required"
+                    )
+                return CsrfTokenResponse(csrf_token=csrf_token)
 
     @app.post(
         "/api/v1/runs/daily",
@@ -226,7 +277,7 @@ def create_app(
     )
     async def create_daily_run_endpoint(
         payload: DailyRunRequest,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(csrf_protected),
     ) -> RunResponse:
         run = create_daily_run(database, payload.trade_date)
@@ -237,7 +288,7 @@ def create_app(
     @app.get("/api/v1/runs/{run_id}", response_model=RunResponse)
     async def read_run_endpoint(
         run_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(authenticated_user),
     ) -> RunResponse:
         return _run_response(_required_run(database, run_id))
@@ -247,7 +298,7 @@ def create_app(
         run_id: UUID,
         offset: int = Query(default=0, ge=0),
         limit: int = Query(default=100, ge=1, le=100),
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(authenticated_user),
     ) -> list[RunEventResponse]:
         _required_run(database, run_id)
@@ -263,7 +314,7 @@ def create_app(
     @app.post("/api/v1/runs/{run_id}/pause", response_model=RunResponse)
     async def pause_run_endpoint(
         run_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(csrf_protected),
     ) -> RunResponse:
         run = _required_run(database, run_id)
@@ -274,7 +325,7 @@ def create_app(
     @app.post("/api/v1/runs/{run_id}/cancel", response_model=RunResponse)
     async def cancel_run_endpoint(
         run_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(csrf_protected),
     ) -> RunResponse:
         run = _required_run(database, run_id)
@@ -285,7 +336,7 @@ def create_app(
     @app.post("/api/v1/runs/{run_id}/resume", response_model=RunResponse)
     async def resume_run_endpoint(
         run_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(csrf_protected),
     ) -> RunResponse:
         run = _required_run(database, run_id)
@@ -295,7 +346,7 @@ def create_app(
 
     @app.get("/api/v1/packages", response_model=list[PackageResponse])
     async def list_packages_endpoint(
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(authenticated_user),
     ) -> list[PackageResponse]:
         packages = database.scalars(select(Package).order_by(Package.created_at.desc()))
@@ -304,7 +355,7 @@ def create_app(
     @app.get("/api/v1/packages/{package_id}", response_model=PackageResponse)
     async def read_package_endpoint(
         package_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(authenticated_user),
     ) -> PackageResponse:
         return _package_response(database, _required_package(database, package_id))
@@ -312,7 +363,7 @@ def create_app(
     @app.get("/files/packages/{package_id}")
     async def download_package_endpoint(
         package_id: UUID,
-        database: Session = Depends(database_session),
+        database: Session = Depends(database_session, scope="function"),
         _user: User = Depends(authenticated_user),
     ) -> FileResponse:
         package = _required_package(database, package_id)
@@ -332,14 +383,17 @@ def create_app(
         csrf_token = request.headers.get(CSRF_HEADER_NAME)
         if session_token is None or csrf_token is None:
             raise HTTPException(status_code=401, detail="Authentication required")
-        with _database_transaction(app.state.session_factory) as database:
-            if not revoke_session(
-                database,
-                session_token,
-                csrf_token,
-                _session_secret(application_settings),
-            ):
-                raise HTTPException(status_code=403, detail="CSRF validation failed")
+        async with app.state.auth_lock:
+            with _database_transaction(app.state.session_factory) as database:
+                if not revoke_session(
+                    database,
+                    session_token,
+                    csrf_token,
+                    _session_secret(application_settings),
+                ):
+                    raise HTTPException(
+                        status_code=403, detail="CSRF validation failed"
+                    )
         response.delete_cookie(SESSION_COOKIE_NAME, path="/")
         return response
 

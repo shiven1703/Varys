@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { AuthenticatedUser, LoginResponse, VarysApiClient } from './api-client';
 
@@ -21,8 +21,16 @@ export class AuthService {
 
   restore(): Observable<boolean> {
     return this.api.currentUser().pipe(
-      tap((user) => this.user.set(user)),
-      map(() => true),
+      switchMap((user) =>
+        this.api.refreshCsrfToken().pipe(
+          tap((response) => {
+            this.user.set(user);
+            this.csrfToken.set(response.csrf_token);
+            sessionStorage.setItem(CSRF_STORAGE_KEY, response.csrf_token);
+          }),
+          map(() => true)
+        )
+      ),
       catchError(() => {
         this.clearSession();
         return of(false);

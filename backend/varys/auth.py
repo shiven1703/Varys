@@ -181,6 +181,25 @@ def validate_csrf_token(
     )
 
 
+def rotate_csrf_token(
+    database: Session, session_token: str, session_secret: str
+) -> str | None:
+    user = current_user(database, session_token, session_secret)
+    if user is None:
+        return None
+    session = database.scalar(
+        select(AuthSession).where(
+            AuthSession.token_hash == _token_hash(session_token, session_secret),
+            AuthSession.revoked_at.is_(None),
+        )
+    )
+    if session is None:
+        return None
+    csrf_token = token_urlsafe(32)
+    session.csrf_token_hash = _token_hash(csrf_token, session_secret)
+    return csrf_token
+
+
 def _token_hash(token: str, session_secret: str) -> str:
     return sha256(f"{session_secret}:{token}".encode()).hexdigest()
 
