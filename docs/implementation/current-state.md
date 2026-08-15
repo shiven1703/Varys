@@ -4,14 +4,11 @@ Last updated: 2026-08-15
 
 ## Repository commit
 
-Baseline commit: `aad51c5ef61816df2c53233b8eaa2295a2f97914`
+Phase 0 starting commit: `27d0fea59b79086af589350c36d26ab70bc58854`
 
-The Pre-Phase bootstrap and Phase 0 handover are maintained directly on `main`.
-They are currently uncommitted because permission to stage and commit the
-bootstrap was not granted in the handover session. At the start of the Phase 0
-chat, obtain the exact commit with `git rev-parse HEAD`, inspect the known
-bootstrap changes, and request permission to create the baseline commit before
-application implementation begins.
+The Pre-Phase bootstrap was committed on `main` as `c20b416`; the temporary
+Codex configuration was deliberately removed in `27d0fea`. The working tree
+was clean when Phase 0 began.
 
 ## Approved phases
 
@@ -19,7 +16,7 @@ application implementation begins.
 
 ## Current phase and status
 
-Phase 0: `NOT_STARTED`
+Phase 0: `IN_PROGRESS` — Iteration 0B
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -54,8 +51,9 @@ No application test suite exists yet.
 
 ## Open risks
 
-- No application risk register exists yet; Phase 0 will materialize the plan's
-  baseline risk register.
+- Docker client access is unavailable in the current Codex session because it
+  has not inherited Docker-group membership. The owner accepted deferring this
+  validation; it remains required for the later Compose increment.
 - Host resources are suitable for bootstrap, but later image builds should be
   monitored on this 7.2 GiB RAM development machine.
 - No unresolved cross-document contradiction is known after the 2026-08-15
@@ -89,8 +87,12 @@ Not applicable; Alembic is not initialized.
 
 ## Current output schema versions
 
-None implemented. Planned V1 contracts are not yet materialized as individual
-versioned files.
+- CSV representation: `v1`
+- Equity CSV: `v1`
+- Index CSV: `v1`
+- Universe CSV: `v1`
+- Manifest: `v1`
+- Preparation report: `v1`
 
 ## Current Docker/runtime topology
 
@@ -120,8 +122,5 @@ commands will be created in Phase 0 Iteration 0C.
 
 ## Next allowed implementation work
 
-Start Phase 0 in a new Codex chat using
-`docs/implementation/handoffs/phase-0.md`. Verify the known uncommitted
-bootstrap files, create the baseline commit if authorized, and read all three
-higher-authority source documents before changing Phase 0 from `NOT_STARTED` to
-`IN_PROGRESS`. Begin with Iteration 0A; do not start Phase 1 work.
+Begin Iteration 0B architecture and repository-boundary documentation. Do not
+start Phase 1 work.

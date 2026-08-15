@@ -1,10 +1,10 @@
 # Phase 0 State
 
-Status: NOT_STARTED
+Status: IN_PROGRESS
 Owner approved: no
 Plan revision: 3
-Started from commit: N/A
-Current commit: Resolve with `git rev-parse HEAD` at Phase 0 startup
+Started from commit: `27d0fea59b79086af589350c36d26ab70bc58854`
+Current commit: Resolve with `git rev-parse HEAD` before each evidence update
 
 ## Objective
 
@@ -38,8 +38,8 @@ for the Phase 1 fixture-based vertical slice.
 
 ## Implementation iterations
 
-- Iteration 0A: NOT_STARTED
-- Iteration 0B: NOT_STARTED
+- Iteration 0A: COMPLETED
+- Iteration 0B: IN_PROGRESS
 - Iteration 0C: NOT_STARTED
 - Iteration 0D: NOT_STARTED
 - Iteration 0E: NOT_STARTED
@@ -56,7 +56,21 @@ Sections 10.2 through 10.12 of
 
 ## Acceptance evidence
 
-None. Phase 0 has not started.
+Phase 0 started on the clean `main` working tree at
+`27d0fea59b79086af589350c36d26ab70bc58854`. The documented uncommitted
+bootstrap baseline had already been committed as `c20b416`; `27d0fea`
+deliberately removed its temporary Codex configuration.
+
+Iteration 0A contract review passed: all twelve required `v1` contracts exist;
+the exact equity, index, and universe schemas are locked; state, package,
+adapter, API, configuration, filesystem, numeric, newline, and ordering rules
+are explicit. Deterministic checks verified the file inventory, contract
+versions, required index and universe headers, API/download split, required
+state names, and `git diff --check`.
+
+The owner accepted Iteration 0A on 2026-08-15. This acceptance does not approve
+Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
+passes and the owner explicitly approves the phase.
 
 ## Deviations from plan
 
@@ -67,10 +81,9 @@ None. Phase 0 has not started.
 
 ## Known limitations
 
-- No application project, tests, contracts, ADRs, or Phase 0 runtime exist yet.
-- The three higher-authority planning inputs are now present under
-  `docs/implementation/` and passed a cross-document planning audit, but have
-  not yet been materialized into the versioned Phase 0 contracts.
+- No application project, tests, ADRs, or Phase 0 runtime exist yet.
+- The three higher-authority planning inputs are now materialized as the
+  versioned Iteration 0A contracts.
 
 ## Risks opened/closed
 
@@ -79,8 +92,8 @@ None. Phase 0 has not started.
 - Closed: the 2026-08-15 planning audit reconciled the known Git workflow,
   index-turnover, API/download-path, progress-ledger, and Phase 0/1 iteration
   mapping inconsistencies.
-- Open: surface and resolve any new ambiguity found while translating approved
-  minimum baselines into exact versioned contracts.
+- Closed: the approved minimum baselines have been translated into exact
+  versioned contracts for the Phase 1 fixture slice.
 - Open: monitor memory use during container and frontend builds on the 7.2 GiB
   RAM development host.
 
@@ -90,14 +103,8 @@ None. Initial ADRs belong to Iteration 0B.
 
 ## Next actions
 
-- Start a fresh Codex chat with `docs/implementation/handoffs/phase-0.md`.
-- Verify `main`, the exact commit, the documented uncommitted bootstrap files,
-  Docker access, and all required source documents.
-- Request permission to create the bootstrap baseline commit before application
-  implementation begins.
-- Report the mandatory Phase 0 baseline before editing.
-- Transition to `IN_PROGRESS` only when implementation actually begins.
-- Implement Iteration 0A first and verify it before proceeding iteratively.
+- Complete and verify Iteration 0B architecture and repository-boundary
+  documentation.
 
 ## Owner approval
 
