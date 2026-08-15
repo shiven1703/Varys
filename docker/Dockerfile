@@ -12,19 +12,20 @@ ENV PYTHONPATH=/app/backend \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY requirements-dev.lock ./
+COPY pyproject.toml requirements-dev.lock ./
 RUN apt-get update \
     && apt-get upgrade --yes \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --no-cache-dir --upgrade \
         pip==26.2.1 setuptools==78.1.1 wheel==0.46.2 \
-    && pip install --no-cache-dir --requirement requirements-dev.lock \
-    && python -m pip uninstall --yes setuptools wheel
+    && pip install --no-cache-dir --requirement requirements-dev.lock
 COPY alembic.ini ./
 COPY migrations/ ./migrations/
 COPY backend/ ./backend/
 COPY docker/entrypoints/ ./docker/entrypoints/
 COPY --from=frontend-build /frontend/dist/varys-frontend/browser ./backend/varys/frontend/
+RUN pip install --no-cache-dir --no-deps . \
+    && python -m pip uninstall --yes setuptools wheel
 RUN adduser --disabled-password --gecos '' varys \
     && mkdir /data \
     && chown -R varys:varys /app /data \

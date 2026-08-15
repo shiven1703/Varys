@@ -18,8 +18,8 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 1: `READY_TO_START` — Phase 0 is accepted; no Phase 1 implementation has
-started.
+Phase 1: `IN_PROGRESS` — Phase 0 is accepted and the owner accepted Iteration
+1A; Iteration 1B is next.
 Implementation plan revision: 3
 
 Phase 1 is authorized to start with Iteration 1A only. Its owner approval
@@ -63,10 +63,16 @@ remains pending until the Phase 1 acceptance suite passes.
   shared `varys:local` image. The worker remains alive until a shutdown signal.
 - Phase 1 handover and initial state artifact are prepared for the fixture-only
   authentication increment.
+- Iteration 1A adds users, revocable PostgreSQL-backed sessions, Argon2id
+  password hashing, the `varys create-admin` maintenance command, and login,
+  logout, and current-user API endpoints. Login sessions use opaque server-side
+  token hashes, an HttpOnly/Secure/SameSite=Lax cookie, 12-hour idle expiry,
+  seven-day absolute lifetime, session rotation, CSRF-protected logout, and
+  disabled-user/expired-session rejection.
 
 ## Not implemented
 
-- All Phase 1 through Phase 7 application work.
+- Phase 1 Iterations 1B through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -92,6 +98,9 @@ audits, and Trivy.
 - No unresolved cross-document contradiction is known after the 2026-08-15
   planning alignment audit. Phase 1 must surface any new ambiguity before it
   changes a versioned contract or dependency baseline.
+- Iteration 1A's clean PostgreSQL migration/authentication integration proof
+  remains unavailable locally because `VARYS_TEST_DATABASE_URL` is unset; this
+  is not a passing result, although the owner accepted the increment.
 
 ## Planning alignment review
 
@@ -116,7 +125,8 @@ Resolved and recorded:
 
 ## Current database migration revision
 
-`0001_database_foundation` (head). No product tables exist yet.
+`0002_authentication` (head). Users and authentication-session tables exist;
+all other product tables remain unimplemented.
 
 ## Current output schema versions
 
@@ -180,7 +190,6 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1A only, using `docs/implementation/handoffs/phase-1.md`
-and `docs/implementation/phases/phase-1.md`. Review affected contract, schema,
-toolchain, and dependency versions in every increment; update their versioned
-records whenever a change is made.
+Start Phase 1 Iteration 1B only. Review affected contract, schema, toolchain,
+and dependency versions in every increment; update their versioned records
+whenever a change is made.

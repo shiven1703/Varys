@@ -11,6 +11,7 @@ requires-python = ">=3.12,<3.13"
 [project.optional-dependencies]
 dev = [
   "alembic==1.14.1",
+  "argon2-cffi==25.1.0",
   "fastapi==0.139.2",
   "httpx==0.28.1",
   "mypy==1.15.0",
@@ -20,8 +21,12 @@ dev = [
   "uvicorn==0.34.0",
 ]
 
+[project.scripts]
+varys = "varys.cli:main"
+
 [tool.setuptools]
-packages = []
+package-dir = {"" = "backend"}
+packages = ["varys"]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]

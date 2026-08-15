@@ -4,20 +4,46 @@ from __future__ import annotations
 
 import argparse
 import logging
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Generator
+from contextlib import AbstractContextManager
 from mimetypes import guess_type
 from pathlib import Path
 from uuid import uuid4
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from pydantic import BaseModel
+from sqlalchemy.orm import Session, sessionmaker
 
+from varys.auth import (
+    CSRF_HEADER_NAME,
+    SESSION_COOKIE_NAME,
+    User,
+    current_user,
+    login,
+    revoke_session,
+)
 from varys.config import Settings, load_settings
-from varys.db import check_database_readiness
+from varys.db import check_database_readiness, create_session_factory
 from varys.logging import configure_logging, reset_request_id, set_request_id
 from varys.storage import check_storage_readiness
 
 _LOGGER = logging.getLogger("varys.api")
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+
+
+class LoginResponse(BaseModel):
+    user: UserResponse
+    csrf_token: str
 
 
 def create_app(
@@ -25,6 +51,8 @@ def create_app(
 ) -> FastAPI:
     application_settings = settings or load_settings()
     app = FastAPI(title="Varys")
+    app.state.settings = application_settings
+    app.state.session_factory = _session_factory(application_settings)
 
     @app.middleware("http")
     async def request_context(
@@ -58,6 +86,72 @@ def create_app(
             raise HTTPException(status_code=503, detail=storage_readiness.reason)
         return {"status": "ok"}
 
+    def database_session() -> Generator[Session, None, None]:
+        factory: sessionmaker[Session] | None = app.state.session_factory
+        if factory is None:
+            raise HTTPException(
+                status_code=503, detail="authentication is not configured"
+            )
+        with factory.begin() as database:
+            yield database
+
+    @app.post("/api/v1/auth/login", response_model=LoginResponse)
+    async def login_endpoint(
+        credentials: LoginRequest,
+        response: Response,
+        database: Session = Depends(database_session),
+    ) -> LoginResponse:
+        session_secret = _session_secret(application_settings)
+        authenticated = login(
+            database, credentials.username, credentials.password, session_secret
+        )
+        if authenticated is None:
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        user, session_token, csrf_token = authenticated
+        response.set_cookie(
+            key=SESSION_COOKIE_NAME,
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=7 * 24 * 60 * 60,
+            path="/",
+        )
+        return LoginResponse(user=_user_response(user), csrf_token=csrf_token)
+
+    @app.get("/api/v1/auth/current-user", response_model=UserResponse)
+    async def current_user_endpoint(request: Request) -> UserResponse:
+        session_token = request.cookies.get(SESSION_COOKIE_NAME)
+        if session_token is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        with _database_transaction(app.state.session_factory) as database:
+            user = current_user(
+                database, session_token, _session_secret(application_settings)
+            )
+            if user is None:
+                raise HTTPException(status_code=401, detail="Authentication required")
+            return _user_response(user)
+
+    @app.post("/api/v1/auth/logout", status_code=204)
+    async def logout_endpoint(
+        request: Request,
+        response: Response,
+    ) -> Response:
+        session_token = request.cookies.get(SESSION_COOKIE_NAME)
+        csrf_token = request.headers.get(CSRF_HEADER_NAME)
+        if session_token is None or csrf_token is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        with _database_transaction(app.state.session_factory) as database:
+            if not revoke_session(
+                database,
+                session_token,
+                csrf_token,
+                _session_secret(application_settings),
+            ):
+                raise HTTPException(status_code=403, detail="CSRF validation failed")
+        response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+        return response
+
     if frontend_directory is not None and (frontend_directory / "index.html").is_file():
 
         @app.get("/{path:path}", include_in_schema=False)
@@ -73,7 +167,6 @@ def create_app(
                 return _static_response(requested_file)
             return _static_response(frontend_directory / "index.html")
 
-    app.state.settings = application_settings
     return app
 
 
@@ -94,6 +187,30 @@ def main() -> int:
 def _static_response(path: Path) -> Response:
     media_type, _ = guess_type(path.name)
     return Response(content=path.read_bytes(), media_type=media_type)
+
+
+def _session_factory(settings: Settings) -> sessionmaker[Session] | None:
+    if settings.database_url is None:
+        return None
+    return create_session_factory(settings.database_url)
+
+
+def _session_secret(settings: Settings) -> str:
+    if not settings.session_secret:
+        raise HTTPException(status_code=503, detail="authentication is not configured")
+    return settings.session_secret
+
+
+def _database_transaction(
+    factory: sessionmaker[Session] | None,
+) -> AbstractContextManager[Session, bool | None]:
+    if factory is None:
+        raise HTTPException(status_code=503, detail="authentication is not configured")
+    return factory.begin()
+
+
+def _user_response(user: User) -> UserResponse:
+    return UserResponse(id=str(user.id), username=user.username)
 
 
 if __name__ == "__main__":

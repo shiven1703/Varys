@@ -22,6 +22,13 @@ def test_readiness_returns_service_unavailable_without_database() -> None:
     assert response.json() == {"detail": "database URL is not configured"}
 
 
+def test_current_user_rejects_request_without_a_session() -> None:
+    response = asyncio.run(_request("/api/v1/auth/current-user"))
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Authentication required"}
+
+
 def test_frontend_serves_bundle_and_preserves_api_namespace(tmp_path: Path) -> None:
     (tmp_path / "index.html").write_text("<app-root></app-root>", encoding="utf-8")
     (tmp_path / "main.js").write_text("console.log('varys')", encoding="utf-8")

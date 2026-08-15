@@ -2,12 +2,12 @@
 
 Read `AGENTS.md` first, then follow its ordered document list. The current
 implementation ledger is `docs/implementation/current-state.md`; the current
-phase evidence is `docs/implementation/phases/phase-0.md`.
+phase evidence is `docs/implementation/phases/phase-1.md`.
 
 ## Current boundary
 
-Phase 0 is `IN_PROGRESS` in Iteration 0J. Do not begin Phase 1. Only the owner
-can approve a phase: Codex records evidence and may set
+Phase 1 is `IN_PROGRESS` in Iteration 1A. Phase 0 was owner-approved on
+2026-08-15. Only the owner can approve a phase: Codex records evidence and may set
 `USER_APPROVAL_PENDING`, but never `APPROVED`.
 
 ## Commands

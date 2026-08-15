@@ -12,6 +12,7 @@ services:
       VARYS_API_HOST: 0.0.0.0
       VARYS_DATABASE_URL: postgresql+psycopg://varys:${VARYS_POSTGRES_PASSWORD:?Set VARYS_POSTGRES_PASSWORD in .env}@postgres:5432/varys
       VARYS_DATA_ROOT: /data
+      VARYS_SESSION_SECRET: ${VARYS_SESSION_SECRET:?Set VARYS_SESSION_SECRET in .env}
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
@@ -34,6 +35,7 @@ services:
     environment:
       VARYS_DATABASE_URL: postgresql+psycopg://varys:${VARYS_POSTGRES_PASSWORD:?Set VARYS_POSTGRES_PASSWORD in .env}@postgres:5432/varys
       VARYS_DATA_ROOT: /data
+      VARYS_SESSION_SECRET: ${VARYS_SESSION_SECRET:?Set VARYS_SESSION_SECRET in .env}
     volumes:
       - varys-data:/data
     depends_on:

@@ -47,15 +47,25 @@ def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
         raise ValueError("VARYS_LOG_LEVEL must be a standard Python log level")
 
     api_port = _parse_port(values.get("VARYS_API_PORT", "8000"))
+    database_url = values.get("VARYS_DATABASE_URL")
+    session_secret = values.get("VARYS_SESSION_SECRET")
+    if database_url is not None and (
+        session_secret is None or len(session_secret) < 32
+    ):
+        raise ValueError(
+            "VARYS_SESSION_SECRET must be at least 32 characters "
+            "when database is configured"
+        )
+
     return Settings(
         environment=values.get("VARYS_ENVIRONMENT", "development"),
         log_level=log_level,
         api_host=values.get("VARYS_API_HOST", "127.0.0.1"),
         api_port=api_port,
         worker_id=values.get("VARYS_WORKER_ID", "varys-worker"),
-        database_url=values.get("VARYS_DATABASE_URL"),
+        database_url=database_url,
         data_root=_optional_path(values.get("VARYS_DATA_ROOT")),
-        session_secret=values.get("VARYS_SESSION_SECRET"),
+        session_secret=session_secret,
     )
 
 

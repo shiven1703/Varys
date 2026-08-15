@@ -20,3 +20,8 @@ def test_settings_parse_expected_values() -> None:
     assert settings.api_port == 8010
     assert str(settings.data_root) == "/var/lib/varys"
     assert settings.log_level == "DEBUG"
+
+
+def test_database_configuration_requires_a_long_session_secret() -> None:
+    with pytest.raises(ValueError, match="VARYS_SESSION_SECRET must be at least 32"):
+        load_settings({"VARYS_DATABASE_URL": "postgresql://localhost/varys"})

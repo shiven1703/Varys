@@ -27,6 +27,7 @@ Python packages. It retains the venv-provided pip and does not upgrade it.
 | --- | --- | --- |
 | setuptools | 75.8.0 | Editable project installation backend. |
 | Alembic | 1.14.1 | PostgreSQL migration management. |
+| argon2-cffi | 25.1.0 | Argon2id password hashing for Phase 1 sessions. |
 | FastAPI | 0.139.2 | HTTP application framework. |
 | httpx | 0.28.1 | In-process HTTP testing support. |
 | mypy | 1.15.0 | Static type checks. |
@@ -51,6 +52,11 @@ reported packaging-tool findings, then removes `setuptools` and `wheel` from
 the final runtime image because the application does not require build tooling.
 The project requires Python `>=3.12,<3.13`. Transitive pins are retained in
 `requirements-dev.lock`.
+
+Iteration 1A adds `argon2-cffi==25.1.0` with its pinned
+`argon2-cffi-bindings==25.1.0`, `cffi==2.1.1`, and `pycparser==3.0`
+transitives. No contract, output-schema, parser-format, or API-version change
+was required: the new JSON endpoints use the locked `/api/v1` namespace.
 
 ## Frontend dependencies
 

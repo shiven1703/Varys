@@ -12,6 +12,7 @@ BACKEND_PYTHONPATH := PYTHONPATH=backend
 bootstrap:
 	$(PYTHON) -m venv $(VENV)
 	$(VENV_PYTHON) -m pip install --requirement requirements-dev.lock
+	$(VENV_PYTHON) -m pip install --editable . --no-deps
 
 format:
 	$(VENV_RUFF) check --fix backend
