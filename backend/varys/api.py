@@ -13,6 +13,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from varys.config import Settings, load_settings
 from varys.db import check_database_readiness
 from varys.logging import configure_logging, reset_request_id, set_request_id
+from varys.storage import check_storage_readiness
 
 _LOGGER = logging.getLogger("varys.api")
 
@@ -45,9 +46,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/api/health/ready")
     async def ready() -> dict[str, str]:
-        readiness = check_database_readiness(application_settings.database_url)
-        if not readiness.ready:
-            raise HTTPException(status_code=503, detail=readiness.reason)
+        database_readiness = check_database_readiness(application_settings.database_url)
+        if not database_readiness.ready:
+            raise HTTPException(status_code=503, detail=database_readiness.reason)
+        storage_readiness = check_storage_readiness(application_settings.data_root)
+        if not storage_readiness.ready:
+            raise HTTPException(status_code=503, detail=storage_readiness.reason)
         return {"status": "ok"}
 
     app.state.settings = application_settings

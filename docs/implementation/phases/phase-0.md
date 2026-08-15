@@ -43,8 +43,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0C: COMPLETED
 - Iteration 0D: COMPLETED
 - Iteration 0E: COMPLETED
-- Iteration 0F: IN_PROGRESS
-- Iteration 0G: NOT_STARTED
+- Iteration 0F: COMPLETED
+- Iteration 0G: IN_PROGRESS
 - Iteration 0H: NOT_STARTED
 - Iteration 0I: NOT_STARTED
 - Iteration 0J: NOT_STARTED
@@ -117,6 +117,17 @@ The owner accepted Iteration 0E on 2026-08-15. This acceptance does not approve
 Phase 0. The pending clean-PostgreSQL integration evidence remains recorded and
 must be completed before Phase 0 acceptance.
 
+Iteration 0F filesystem review passed. Storage paths reject traversal, malformed
+identifiers, and symlink escape; durable writes remain `.part` files until a
+same-filesystem atomic publish; SHA-256 output is fixed by test; and readiness
+detects missing or unwritable storage roots. `/api/health/ready` now combines
+database and storage readiness. `make check` passed 16 unit tests, Ruff, and
+mypy.
+
+The owner accepted Iteration 0F on 2026-08-15. This acceptance does not approve
+Phase 0. The pending clean-PostgreSQL integration evidence remains required
+before Phase 0 acceptance.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -127,7 +138,7 @@ must be completed before Phase 0 acceptance.
 ## Known limitations
 
 - PostgreSQL integration execution is pending an available test database.
-- The bootstrap has no storage, scheduler, or production runtime yet.
+- The bootstrap has no scheduler or production runtime yet.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
 
@@ -150,8 +161,8 @@ must be completed before Phase 0 acceptance.
 
 ## Next actions
 
-- Complete Iteration 0F filesystem safety primitives. The pending 0E PostgreSQL
-  integration evidence remains required before Phase 0 acceptance.
+- Begin Iteration 0G Angular shell. The pending 0E PostgreSQL integration
+  evidence remains required before Phase 0 acceptance.
 
 ## Owner approval
 

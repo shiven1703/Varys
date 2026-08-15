@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0F
+Phase 0: `IN_PROGRESS` — Iteration 0G
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -39,6 +39,9 @@ is not itself approved.
 - PostgreSQL-only SQLAlchemy sessions, Alembic configuration, migration head
   `0001_database_foundation`, database readiness checks, and an integration
   test harness are implemented.
+- Safe storage-root resolution, SHA-256 hashing, durable `.part` writes,
+  same-filesystem atomic publication, directory sync, and storage readiness
+  checks are implemented.
 
 ## Not implemented
 
@@ -139,5 +142,5 @@ Compose targets identify the later iteration that owns them.
 
 ## Next allowed implementation work
 
-Provide PostgreSQL integration evidence for Iteration 0E before moving to
-Iteration 0F. Do not start Phase 1 work.
+Begin Iteration 0G Angular shell. The pending 0E PostgreSQL integration evidence
+remains required before Phase 0 acceptance. Do not start Phase 1 work.
