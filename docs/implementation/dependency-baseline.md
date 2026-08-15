@@ -62,6 +62,10 @@ Iteration 1B adds no dependency or toolchain version. It advances the Alembic
 schema head from `0002_authentication` to `0003_run_dispatch`; all API,
 contract, output-schema, and parser-format versions remain unchanged.
 
+Docker Buildx `0.36.1` already supports the BuildKit cache-mount syntax used by
+the application Dockerfile. The Docker build now keeps npm and pip download
+caches outside the final image, so no dependency or lockfile change is needed.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

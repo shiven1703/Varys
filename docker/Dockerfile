@@ -1,8 +1,11 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:24.18.0-bookworm-slim AS frontend-build
 
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,id=varys-npm-cache,target=/root/.npm \
+    npm ci --cache /root/.npm
 COPY frontend/ ./
 RUN npm run build
 
@@ -13,12 +16,13 @@ ENV PYTHONPATH=/app/backend \
 
 WORKDIR /app
 COPY pyproject.toml requirements-dev.lock ./
-RUN apt-get update \
+RUN --mount=type=cache,id=varys-pip-cache,target=/root/.cache/pip \
+    apt-get update \
     && apt-get upgrade --yes \
     && rm -rf /var/lib/apt/lists/* \
-    && python -m pip install --no-cache-dir --upgrade \
+    && python -m pip install --upgrade \
         pip==26.2.1 setuptools==78.1.1 wheel==0.46.2 \
-    && pip install --no-cache-dir --requirement requirements-dev.lock
+    && pip install --requirement requirements-dev.lock
 COPY alembic.ini ./
 COPY migrations/ ./migrations/
 COPY backend/ ./backend/

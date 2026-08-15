@@ -198,6 +198,16 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Complete Phase 1 Iteration 1B only. Review affected contract, schema,
-toolchain, and dependency versions in every increment; update their versioned
-records whenever a change is made.
+Start Phase 1 Iteration 1C only. Review affected contract, schema, toolchain,
+and dependency versions in every increment; update their versioned records
+whenever a change is made.
+
+## Build performance
+
+The Dockerfile retains the pinned pip and npm dependency model. Its BuildKit
+package-cache mounts preserve downloaded npm tarballs and Python wheels across
+rebuilds without placing cache files in the final application image. The first
+build still downloads base images and dependencies; subsequent builds reuse the
+caches unless the Docker builder cache is pruned. The changed Dockerfile awaits
+a host-terminal Compose smoke rerun because this Codex session has no Docker
+daemon access.

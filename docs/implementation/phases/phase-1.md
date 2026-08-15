@@ -105,6 +105,11 @@ Iteration 1B changes no dependency, toolchain, API, output-schema, parser, or
 contract version. It advances only the Alembic migration head to
 `0003_run_dispatch`.
 
+The post-1B Docker build optimization retains the exact pinned pip and npm
+locks; BuildKit cache mounts are provided by the already-pinned Docker Buildx
+toolchain. `make check` passed after the change. A host-terminal
+`make compose-smoke` rerun is still required to validate the Dockerfile change.
+
 ## Next actions
 
 Start Iteration 1C only: fixture source adapters and isolated run workspaces.

@@ -47,6 +47,10 @@ database, verifies, and removes the local Compose topology. Cloudflare Tunnel
 is optional and disabled unless the `cloudflared` profile is selected with
 `CLOUDFLARE_TUNNEL_TOKEN` set.
 
+The first Docker build must download base images and pinned dependencies. Later
+BuildKit builds reuse persistent npm and pip package caches; keep the Docker
+builder cache unless disk space requires pruning it.
+
 ## CI checks
 
 One sequential GitHub Actions job on pushes to `main` runs the Gitleaks
