@@ -66,6 +66,10 @@ Docker Buildx `0.36.1` already supports the BuildKit cache-mount syntax used by
 the application Dockerfile. The Docker build now keeps npm and pip download
 caches outside the final image, so no dependency or lockfile change is needed.
 
+Iteration 1C uses only the Python standard library and existing pinned
+dependencies. No dependency, toolchain, API, output-schema, parser-format, or
+contract version changes are required.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

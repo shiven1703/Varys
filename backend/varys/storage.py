@@ -52,6 +52,11 @@ class StoragePaths:
     def run_workspace(self, run_id: str) -> Path:
         return self.resolve_under(self.work_root, _validate_uuid(run_id))
 
+    def create_run_workspace(self, run_id: str) -> Path:
+        workspace = self.run_workspace(run_id)
+        workspace.mkdir(parents=True, exist_ok=False)
+        return workspace
+
     def staging_package(self, package_id: str) -> Path:
         return self.resolve_under(
             self.staging_root, f"{_validate_uuid(package_id)}.zip.part"

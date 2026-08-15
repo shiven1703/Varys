@@ -19,8 +19,9 @@ was clean when Phase 0 began.
 ## Current phase and status
 
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
-are owner-accepted; Iteration 1B run dispatch was owner-accepted on
-2026-08-15. Iteration 1C is the next scoped increment.
+are owner-accepted; Iterations 1B run dispatch and 1C fixture adapters and
+workspaces were owner-accepted on 2026-08-15. Iteration 1D parsers and
+canonical writers are in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -77,20 +78,21 @@ remains pending until the Phase 1 acceptance suite passes.
   terminal transitions. Migration `0003_run_dispatch`, unit tests, PostgreSQL
   integration tests, and worker startup reconciliation/claim integration are
   present. A clean Compose PostgreSQL run passed all four integration tests.
+- Iteration 1C adds fixture-only Nifty 500 universe, Capital Market bhavcopy,
+  and index-report adapters behind the common discovery/download/classify/verify
+  contract. It records verified fixture metadata without mutating bytes and
+  creates one isolated, safe `/data/work/<run-id>/` directory per run.
 
 ## Not implemented
 
-- Iterations 1C through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1D through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
 
-The latest GitHub Actions Compose smoke job stopped before tests because its
-environment supplied `VARYS_POSTGRES_PASSWORD` but omitted the required
-`VARYS_SESSION_SECRET`. The workflow now supplies an isolated CI-only session
-value; a rerun is required to confirm the fix. The prior required CI suite
-passed on 2026-08-15, including Compose smoke, Playwright, dependency audits,
-and Trivy.
+No known failing tests. GitHub Actions passed after the Compose smoke workflow
+was given its required CI-only `VARYS_SESSION_SECRET`, including Compose smoke,
+Playwright, dependency audits, and Trivy.
 
 ## Known limitations
 
@@ -201,7 +203,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1C only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1D only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 
@@ -212,5 +214,6 @@ package-cache mounts preserve downloaded npm tarballs and Python wheels across
 rebuilds without placing cache files in the final application image. The first
 build still downloads base images and dependencies; subsequent builds reuse the
 caches unless the Docker builder cache is pruned. The changed Dockerfile awaits
-a host-terminal Compose smoke rerun because this Codex session has no Docker
+caches unless the Docker builder cache is pruned. GitHub Actions Compose smoke
+passed with the changed Dockerfile; this Codex session still has no Docker
 daemon access.

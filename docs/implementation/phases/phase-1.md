@@ -14,13 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1B owner-accepted on 2026-08-15: run persistence, append-only
-  events, PostgreSQL claiming, leases, heartbeats, recovery, and safe
-  pause/cancel controls.
+- Iteration 1D in progress: parsers and canonical writers.
 
 ## Out of scope
 
-- Iterations 1C through 1I: fixtures, parsing, package publication,
+- Iterations 1E through 1I: package publication,
   downloads, UI, and Phase 1 E2E acceptance.
 
 ## Implementation evidence
@@ -81,6 +79,24 @@ URL to `VARYS_TEST_DATABASE_URL`, so `make compose-smoke` runs the complete
 PostgreSQL integration suite instead of skipping it. Docker remains unavailable
 in this Codex session, but the host-terminal run above is successful evidence.
 
+Iteration 1C adds the `SourceAdapter` protocol, all contract-required response
+classifications, typed fixture references/responses/verification metadata, and
+fixture-only implementations of `Nifty500UniverseSource`,
+`CapitalMarketBhavcopySource`, and `IndexReportSource`. These classes import no
+network, run-state, retry, parser, or publication code. `StoragePaths` now
+creates an isolated canonical run workspace once; unit tests cover all three
+adapters, valid/missing/empty fixture responses, verification metadata, and
+workspace isolation.
+
+Verified locally:
+
+- `make format`
+- `make check` — 30 unit tests passed; Ruff and mypy passed.
+- `git diff --check`
+
+The owner accepted Iteration 1C on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
@@ -107,13 +123,17 @@ contract version. It advances only the Alembic migration head to
 
 The post-1B Docker build optimization retains the exact pinned pip and npm
 locks; BuildKit cache mounts are provided by the already-pinned Docker Buildx
-toolchain. `make check` passed after the change. A host-terminal
-`make compose-smoke` rerun is still required to validate the Dockerfile change.
+toolchain. `make check` passed after the change, and GitHub Actions Compose
+smoke passed with the changed Dockerfile.
+
+Iteration 1C adds no dependency, toolchain, API, output-schema, parser, or
+contract version; it implements the locked source-adapter and filesystem
+contracts with fixture-only Python code.
 
 ## Next actions
 
-Start Iteration 1C only: fixture source adapters and isolated run workspaces.
-Do not start a later Phase 1 iteration in the same increment.
+Implement Iteration 1D parsers and canonical writers. Do not start a later
+Phase 1 iteration in the same increment.
 
 ## Owner approval
 
