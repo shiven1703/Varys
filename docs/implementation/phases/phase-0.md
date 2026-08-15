@@ -39,7 +39,7 @@ for the Phase 1 fixture-based vertical slice.
 ## Implementation iterations
 
 - Iteration 0A: COMPLETED
-- Iteration 0B: IN_PROGRESS
+- Iteration 0B: COMPLETED
 - Iteration 0C: NOT_STARTED
 - Iteration 0D: NOT_STARTED
 - Iteration 0E: NOT_STARTED
@@ -72,6 +72,17 @@ The owner accepted Iteration 0A on 2026-08-15. This acceptance does not approve
 Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
 passes and the owner explicitly approves the phase.
 
+Iteration 0B architecture review passed: repository structure, module
+boundaries, and runtime topology explicitly preserve one Python codebase and
+one application image for app/worker, PostgreSQL-backed dispatch, no broker or
+microservice split, no Nginx, and the filesystem/database publication boundary.
+ADRs record the run-dispatch and recoverable package-publication decisions.
+`git diff --check` and targeted deterministic content checks passed.
+
+The owner accepted Iteration 0B on 2026-08-15. This acceptance does not approve
+Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
+passes and the owner explicitly approves the phase.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -81,7 +92,7 @@ passes and the owner explicitly approves the phase.
 
 ## Known limitations
 
-- No application project, tests, ADRs, or Phase 0 runtime exist yet.
+- No application project, tests, or Phase 0 runtime exist yet.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
 
@@ -99,12 +110,12 @@ passes and the owner explicitly approves the phase.
 
 ## Decisions/ADRs created
 
-None. Initial ADRs belong to Iteration 0B.
+- `ADR-001-postgresql-run-dispatch.md`
+- `ADR-002-package-publication.md`
 
 ## Next actions
 
-- Complete and verify Iteration 0B architecture and repository-boundary
-  documentation.
+- Begin Iteration 0C Python tooling and stable developer commands.
 
 ## Owner approval
 

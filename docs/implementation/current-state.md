@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0B
+Phase 0: `IN_PROGRESS` — Iteration 0C
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -99,6 +99,11 @@ Not applicable; Alembic is not initialized.
 Docker Engine is installed on the host. No Varys image, Compose file, service,
 volume, or network exists.
 
+The locked target topology is documented: FastAPI app and dedicated worker share
+one Python codebase and application image, PostgreSQL is the only dispatch
+authority, and production adds only cloudflared. No broker, microservice split,
+Nginx, or separate scheduler is part of V1.
+
 ## Git workflow
 
 - Use `main` as the default working branch through the first V1 release.
@@ -122,5 +127,5 @@ commands will be created in Phase 0 Iteration 0C.
 
 ## Next allowed implementation work
 
-Begin Iteration 0B architecture and repository-boundary documentation. Do not
-start Phase 1 work.
+Begin Iteration 0C Python tooling and stable developer commands. Do not start
+Phase 1 work.
