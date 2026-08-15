@@ -14,11 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1F in progress: publication failure matrix and recovery safeguards.
+- Iteration 1G in progress: daily run and package APIs.
 
 ## Out of scope
 
-- Iterations 1G through 1I: APIs,
+- Iterations 1H through 1I: UI,
   downloads, UI, and Phase 1 E2E acceptance.
 
 ## Implementation evidence
@@ -42,6 +42,9 @@ Verified locally:
 - `make test-integration` — correctly skipped two PostgreSQL tests because
   `VARYS_TEST_DATABASE_URL` is not configured in this session.
 - `git diff --check`
+
+The owner accepted Iteration 1F on 2026-08-15. No Phase 1 acceptance status is
+claimed.
 
 The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
 claimed.
@@ -72,6 +75,28 @@ Verified locally:
   `0003_run_dispatch`.
 - `.venv/bin/alembic -c alembic.ini upgrade head --sql` — PostgreSQL migration
   SQL renders successfully without a live database.
+- `git diff --check`
+
+The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
+Iteration 1F adds injected-failure coverage around generated workspace CSV
+writes, post-CSV verification, ZIP generation, the post-rename/pre-commit
+boundary, post-commit archive integrity, and startup reconciliation. Failed
+workspace writes leave only `.part` files; failed staging never becomes ready;
+a replacement package identity can rebuild safely; a database rollback after
+the final rename leaves the archive unavailable until reconciliation adopts it;
+and a corrupt committed archive is quarantined.
+
+Verified locally:
+
+- `make format`
+- `make check` — 37 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `make test-failure-injection` — 3 tests passed.
+- `make test-integration` — 6 PostgreSQL tests correctly skipped because
+  `VARYS_TEST_DATABASE_URL` is not configured in this session, including the
+  post-rename rollback, post-commit, and reconciliation failure matrix.
 - `git diff --check`
 - Host-terminal `make compose-smoke` — a clean Compose database migrated to
   `0003_run_dispatch`; all four PostgreSQL integration tests and the app/worker
@@ -186,10 +211,13 @@ Iteration 1E adds no dependency, toolchain, API, output-schema, parser-format,
 or contract version. It advances only the Alembic migration head to
 `0004_package_publication`.
 
+Iteration 1F adds no dependency, toolchain, API, output-schema, parser-format,
+contract, or migration version.
+
 ## Next actions
 
-Implement Iteration 1F publication failure-matrix coverage. Do not start a
-later Phase 1 iteration in the same increment.
+Implement Iteration 1G daily run and package APIs. Do not start a later Phase 1
+iteration in the same increment.
 
 ## Owner approval
 

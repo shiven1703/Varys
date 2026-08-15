@@ -21,8 +21,8 @@ was clean when Phase 0 began.
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
 are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
 workspaces, and 1D parsers and canonical writers were owner-accepted on
-2026-08-15. Iteration 1E package publication was owner-accepted on 2026-08-15.
-Iteration 1F publication failure handling is in progress.
+2026-08-15. Iterations 1E package publication and 1F publication failure
+handling were owner-accepted on 2026-08-15. Iteration 1G APIs are in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -94,10 +94,15 @@ remains pending until the Phase 1 acceptance suite passes.
   worker-startup archive reconciliation. Migration `0004_package_publication`
   introduces PostgreSQL package readiness metadata, which is written only once
   the final archive exists.
+- Iteration 1F adds failure-injection coverage for every publication boundary:
+  generated CSV writes, verification, ZIP generation, post-rename database
+  rollback, post-commit integrity, and reconciliation. Interrupted work leaves
+  only non-downloadable temporary data, and reconciliation adopts or
+  quarantines archive state safely.
 
 ## Not implemented
 
-- Iterations 1F through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1G through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -126,6 +131,9 @@ Playwright, dependency audits, and Trivy.
 - This Codex session cannot access the Docker daemon, but the user completed a
   clean host-terminal Compose run on 2026-08-15: migrations, all four
   PostgreSQL integration tests, app/worker health checks, and cleanup passed.
+- Migration `0004_package_publication` has only local SQL-rendering evidence in
+  this session; its PostgreSQL publication/reconciliation tests require the
+  next Compose or CI run for live-database evidence.
 
 ## Planning alignment review
 
@@ -216,7 +224,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1F only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1G only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 

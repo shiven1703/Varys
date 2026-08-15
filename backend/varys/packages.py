@@ -29,7 +29,13 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from varys.auth import Base
 from varys.parsers import EQUITY_SCHEMA, INDEX_SCHEMA, UNIVERSE_SCHEMA
-from varys.storage import StoragePaths, atomic_publish, sha256_file, write_durable_part
+from varys.storage import (
+    StoragePaths,
+    atomic_publish,
+    sha256_file,
+    write_durable_bytes,
+    write_durable_part,
+)
 
 _DIGEST = re.compile(r"[0-9a-f]{64}")
 _FINDING_CODE = re.compile(r"[A-Z][A-Z0-9_]*")
@@ -238,6 +244,21 @@ def stage_package(
     return StagedArchive(staging_path, inspected.artifacts, inspected.state)
 
 
+def write_generated_csv(
+    paths: StoragePaths, run_id: str, name: str, content: bytes
+) -> Path:
+    """Durably verify a canonical CSV in its isolated, non-downloadable workspace."""
+    _csv_row_count(name, content)
+    workspace = paths.run_workspace(run_id)
+    if not workspace.is_dir():
+        raise PackageError("run workspace does not exist")
+    destination = paths.resolve_under(workspace, name)
+    part_path = write_durable_bytes(destination, content)
+    _csv_row_count(name, part_path.read_bytes())
+    atomic_publish(part_path, destination)
+    return destination
+
+
 def reconcile_packages(database: Session, paths: StoragePaths) -> ReconciliationResult:
     """Adopt post-rename BUILDING archives and quarantine corrupt ready records."""
     adopted = 0
@@ -428,6 +449,10 @@ def _build_archive(
         artifacts,
     )
     members["manifest.json"] = manifest
+    return _build_zip_archive(members), artifacts
+
+
+def _build_zip_archive(members: Mapping[str, bytes]) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(
         buffer,
@@ -446,7 +471,7 @@ def _build_archive(
                 compress_type=zipfile.ZIP_DEFLATED,
                 compresslevel=9,
             )
-    return buffer.getvalue(), artifacts
+    return buffer.getvalue()
 
 
 def _record_ready_package(

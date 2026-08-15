@@ -79,6 +79,10 @@ dependencies. No dependency, toolchain, API, output-schema, parser-format, or
 contract version changes are required. It advances the Alembic migration head
 to `0004_package_publication`.
 
+Iteration 1F uses only the Python standard library and existing pinned
+dependencies. No dependency, toolchain, API, output-schema, parser-format,
+contract, or migration version changes are required.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The
