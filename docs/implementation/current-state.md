@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0G
+Phase 0: `IN_PROGRESS` — Iteration 0H
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -42,6 +42,9 @@ is not itself approved.
 - Safe storage-root resolution, SHA-256 hashing, durable `.part` writes,
   same-filesystem atomic publication, directory sync, and storage readiness
   checks are implemented.
+- An Angular standalone shell with the six approved empty-state routes, PrimeNG
+  baseline, AG Grid Community dependency, environment-relative API client, and
+  component test is implemented.
 
 ## Not implemented
 
@@ -132,6 +135,9 @@ Compose targets identify the later iteration that owns them.
 `make test-integration` now runs PostgreSQL-only tests and requires
 `VARYS_TEST_DATABASE_URL`; it skips when that environment variable is absent.
 
+The frontend commands are `npm --prefix frontend ci`, `npm --prefix frontend run
+build`, and `npm --prefix frontend test -- --watch=false`.
+
 ## Decisions due before later phases
 
 - Phase 0 must lock all contracts listed in plan section 8.1 before Phase 1.
@@ -142,5 +148,6 @@ Compose targets identify the later iteration that owns them.
 
 ## Next allowed implementation work
 
-Begin Iteration 0G Angular shell. The pending 0E PostgreSQL integration evidence
-remains required before Phase 0 acceptance. Do not start Phase 1 work.
+Begin Iteration 0H shared Docker image and Compose topology. The pending 0E
+PostgreSQL integration evidence remains required before Phase 0 acceptance. Do
+not start Phase 1 work.

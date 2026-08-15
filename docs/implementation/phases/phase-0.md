@@ -44,8 +44,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0D: COMPLETED
 - Iteration 0E: COMPLETED
 - Iteration 0F: COMPLETED
-- Iteration 0G: IN_PROGRESS
-- Iteration 0H: NOT_STARTED
+- Iteration 0G: COMPLETED
+- Iteration 0H: IN_PROGRESS
 - Iteration 0I: NOT_STARTED
 - Iteration 0J: NOT_STARTED
 
@@ -128,6 +128,17 @@ The owner accepted Iteration 0F on 2026-08-15. This acceptance does not approve
 Phase 0. The pending clean-PostgreSQL integration evidence remains required
 before Phase 0 acceptance.
 
+Iteration 0G Angular review passed. The standalone shell provides the six
+approved route placeholders without fake market or run data, a PrimeNG baseline,
+an AG Grid Community dependency for future dense views, and an environment-
+relative API client foundation. `npm run build` completed and `npm test` passed
+the route-placeholder component test. FastAPI hosting of the bundle remains
+deferred to Iteration 0H.
+
+The owner accepted Iteration 0G on 2026-08-15. This acceptance does not approve
+Phase 0. The pending clean-PostgreSQL integration evidence remains required
+before Phase 0 acceptance.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -161,8 +172,8 @@ before Phase 0 acceptance.
 
 ## Next actions
 
-- Begin Iteration 0G Angular shell. The pending 0E PostgreSQL integration
-  evidence remains required before Phase 0 acceptance.
+- Begin Iteration 0H shared Docker image and Compose topology. The pending 0E
+  PostgreSQL integration evidence remains required before Phase 0 acceptance.
 
 ## Owner approval
 

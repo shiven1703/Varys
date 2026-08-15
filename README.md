@@ -22,5 +22,18 @@ The remaining stable targets are intentionally placeholders until their owning
 Phase 0 iteration: `test-integration` (0E), `test-golden` and `test-e2e` (0I),
 and `build`, `compose-up`, `compose-down`, and `compose-smoke` (0H).
 
+## Frontend commands
+
+The Angular shell has its own pinned npm workspace:
+
+```text
+npm --prefix frontend ci
+npm --prefix frontend run build
+npm --prefix frontend test -- --watch=false
+```
+
+The production bundle is served by FastAPI in Iteration 0H; it is not served by
+a separate frontend or Nginx runtime.
+
 See `docs/implementation/implementation-plan.md` for the phase plan and
 `docs/implementation/current-state.md` for the implementation ledger.
