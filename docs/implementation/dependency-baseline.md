@@ -14,6 +14,7 @@ toolchain change.
 | ripgrep | 14.1.0 | Repository search. |
 | Node.js | 24.0.0 | Builds and tests the Angular workspace. |
 | npm | 11.3.0 | Installs the pinned frontend workspace. |
+| Docker Compose | 5.4.0 | Builds and runs the local runtime topology. |
 
 `uv` is not a host prerequisite. `make bootstrap` creates `.venv` and installs
 the exact pins in `requirements-dev.lock` there, so check commands use no global
@@ -35,10 +36,11 @@ Python packages. It retains the venv-provided pip and does not upgrade it.
 | Uvicorn | 0.34.0 | ASGI process server. |
 
 Iteration 0D adds FastAPI and Uvicorn for the inert API/worker bootstrap;
-Iteration 0E adds the PostgreSQL stack. Storage uses the standard library, and
-production image dependencies remain deferred to Iteration 0H. The project
-requires Python `>=3.12,<3.13`. Transitive pins are retained in
-`requirements-dev.lock`.
+Iteration 0E adds the PostgreSQL stack. Storage uses the standard library. The
+Iteration 0H image uses Python `3.12.3-slim-bookworm` and Node
+`24.0.0-bookworm-slim`, then installs the exact Python pins from
+`requirements-dev.lock`. The project requires Python `>=3.12,<3.13`.
+Transitive pins are retained in `requirements-dev.lock`.
 
 ## Frontend dependencies
 

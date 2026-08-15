@@ -45,8 +45,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0E: COMPLETED
 - Iteration 0F: COMPLETED
 - Iteration 0G: COMPLETED
-- Iteration 0H: IN_PROGRESS
-- Iteration 0I: NOT_STARTED
+- Iteration 0H: COMPLETED
+- Iteration 0I: IN_PROGRESS
 - Iteration 0J: NOT_STARTED
 
 ## Acceptance criteria
@@ -138,6 +138,20 @@ deferred to Iteration 0H.
 The owner accepted Iteration 0G on 2026-08-15. This acceptance does not approve
 Phase 0. The pending clean-PostgreSQL integration evidence remains required
 before Phase 0 acceptance.
+
+Iteration 0H implementation added a multi-stage Docker image that produces the
+Angular bundle and the shared Python runtime image, plus a Compose topology
+with app, worker, internal PostgreSQL, named data volumes, and an optional
+disabled-by-default cloudflared profile. FastAPI serves the copied Angular
+bundle at `/`; API and file namespaces remain reserved. `make check` passed 17
+unit tests, Ruff, and mypy; the Angular production build and frontend test
+passed; and `docker compose config --quiet` passed with a supplied local test
+password. Docker build/up/smoke execution remains deferred because this Codex
+session cannot access the Docker daemon.
+
+The owner accepted Iteration 0H on 2026-08-15. This acceptance does not approve
+Phase 0. Docker build/up/smoke evidence and the pending clean-PostgreSQL
+integration evidence remain required before Phase 0 acceptance.
 
 ## Deviations from plan
 

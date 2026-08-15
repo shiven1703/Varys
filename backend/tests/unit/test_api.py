@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 
 import httpx
 
@@ -21,6 +22,19 @@ def test_readiness_returns_service_unavailable_without_database() -> None:
     assert response.json() == {"detail": "database URL is not configured"}
 
 
+def test_frontend_serves_bundle_and_preserves_api_namespace(tmp_path: Path) -> None:
+    (tmp_path / "index.html").write_text("<app-root></app-root>", encoding="utf-8")
+    (tmp_path / "main.js").write_text("console.log('varys')", encoding="utf-8")
+
+    root, asset, missing_api = asyncio.run(_request_frontend(tmp_path))
+
+    assert root.status_code == 200
+    assert root.text == "<app-root></app-root>"
+    assert asset.status_code == 200
+    assert asset.text == "console.log('varys')"
+    assert missing_api.status_code == 404
+
+
 async def _request_liveness_routes() -> list[httpx.Response]:
     transport = httpx.ASGITransport(app=create_app())
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
@@ -34,3 +48,16 @@ async def _request(path: str) -> httpx.Response:
     transport = httpx.ASGITransport(app=create_app())
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         return await client.get(path)
+
+
+async def _request_frontend(
+    frontend_directory: Path,
+) -> tuple[httpx.Response, httpx.Response, httpx.Response]:
+    app = create_app(frontend_directory=frontend_directory)
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        return (
+            await client.get("/"),
+            await client.get("/main.js"),
+            await client.get("/api/v1/missing"),
+        )

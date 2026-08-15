@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0H
+Phase 0: `IN_PROGRESS` — Iteration 0I
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -45,11 +45,14 @@ is not itself approved.
 - An Angular standalone shell with the six approved empty-state routes, PrimeNG
   baseline, AG Grid Community dependency, environment-relative API client, and
   component test is implemented.
+- A multi-stage application image, FastAPI-served Angular bundle, shared
+  app/worker image, local Compose topology, and Compose smoke workflow are
+  implemented.
 
 ## Not implemented
 
 - All Phase 0 through Phase 7 application work.
-- Runtime images, Compose topology, product tests, and CI.
+- Product tests and CI.
 
 ## Known failing tests
 
@@ -110,8 +113,12 @@ Resolved and recorded:
 
 ## Current Docker/runtime topology
 
-Docker Engine is installed on the host. No Varys image, Compose file, service,
-volume, or network exists.
+`docker/Dockerfile` builds the Angular bundle and Python runtime into one image
+used by both `app` and `worker`. `compose.yaml` defines app, worker, internal
+PostgreSQL, persistent data volumes, and an optional disabled-by-default
+`cloudflared` profile. FastAPI serves the Angular bundle at `/`; `/api/` and
+`/files/` remain reserved server routes. No image, service, volume, or network
+has been daemon-validated in this Codex session.
 
 The locked target topology is documented: FastAPI app and dedicated worker share
 one Python codebase and application image, PostgreSQL is the only dispatch
@@ -129,8 +136,9 @@ Nginx, or separate scheduler is part of V1.
 ## Current developer commands
 
 `make bootstrap`, `make format`, `make lint`, `make typecheck`, `make test`,
-`make test-unit`, and `make check` are implemented. Golden, E2E, build, and
-Compose targets identify the later iteration that owns them.
+`make test-unit`, `make check`, `make build`, `make compose-up`,
+`make compose-down`, and `make compose-smoke` are implemented. Golden and E2E
+targets identify the later iteration that owns them.
 
 `make test-integration` now runs PostgreSQL-only tests and requires
 `VARYS_TEST_DATABASE_URL`; it skips when that environment variable is absent.
@@ -148,6 +156,6 @@ build`, and `npm --prefix frontend test -- --watch=false`.
 
 ## Next allowed implementation work
 
-Begin Iteration 0H shared Docker image and Compose topology. The pending 0E
-PostgreSQL integration evidence remains required before Phase 0 acceptance. Do
-not start Phase 1 work.
+Begin Iteration 0I deterministic test and CI foundations. Docker daemon
+validation for Iteration 0H and the pending 0E PostgreSQL integration evidence
+remain required before Phase 0 acceptance. Do not start Phase 1 work.

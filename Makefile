@@ -38,15 +38,15 @@ test-e2e:
 	@echo "Browser E2E tests are introduced in Iteration 0I."
 
 build:
-	@echo "Application image build is introduced in Iteration 0H."
+	docker compose build
 
 compose-up:
-	@echo "Compose topology is introduced in Iteration 0H."
+	docker compose up -d
 
 compose-down:
-	@echo "Compose topology is introduced in Iteration 0H."
+	docker compose down
 
 compose-smoke:
-	@echo "Compose smoke testing is introduced in Iteration 0H."
+	sh scripts/ci/compose-smoke.sh
 
 check: lint typecheck test-unit
