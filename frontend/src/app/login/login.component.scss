@@ -1,0 +1,149 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.login-page {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.login-card {
+  background: #fff;
+  border: 1px solid #e6e9ef;
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 4rem rgb(22 28 45 / 8%);
+  max-width: 27rem;
+  padding: 2.5rem;
+  width: 100%;
+}
+
+.wordmark {
+  color: #111827;
+  font-size: 1.15rem;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.eyebrow {
+  color: #667085;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  margin: 1.75rem 0 0.5rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  color: #101828;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.intro {
+  color: #667085;
+  line-height: 1.5;
+  margin: 0.75rem 0 2rem;
+}
+
+form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+label {
+  color: #344054;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+input {
+  border: 1px solid #d0d5dd;
+  border-radius: 0.5rem;
+  color: #101828;
+  font: inherit;
+  padding: 0.72rem 0.8rem;
+}
+
+input:focus {
+  border-color: #2861d8;
+  box-shadow: 0 0 0 0.2rem rgb(40 97 216 / 13%);
+  outline: none;
+}
+
+button {
+  background: #1d4ed8;
+  border: 0;
+  border-radius: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+  margin-top: 1rem;
+  padding: 0.78rem 1rem;
+}
+
+button:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.form-error {
+  color: #b42318;
+  font-size: 0.88rem;
+  margin: 0.5rem 0 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: #182230;
+    border-color: #344054;
+    box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 25%);
+  }
+
+  .wordmark,
+  h1,
+  input {
+    color: #f9fafb;
+  }
+
+  .eyebrow,
+  .intro {
+    color: #98a2b3;
+  }
+
+  label {
+    color: #d0d5dd;
+  }
+
+  input {
+    background: #101828;
+    border-color: #475467;
+  }
+
+  input:focus {
+    border-color: #84adff;
+    box-shadow: 0 0 0 0.2rem rgb(132 173 255 / 18%);
+  }
+
+  button {
+    background: #4778e8;
+  }
+
+  button:hover:not(:disabled) {
+    background: #5c8cf2;
+  }
+
+  .form-error {
+    color: #fda29b;
+  }
+}

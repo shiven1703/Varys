@@ -1,0 +1,16 @@
+<header class="topbar">
+  <a class="brand" routerLink="/daily-data">Varys</a>
+  <nav aria-label="Primary navigation">
+    @for (item of navigation; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="active">{{ item.label }}</a>
+    }
+  </nav>
+  <div class="account">
+    <span>{{ auth.user()?.username }}</span>
+    <button type="button" (click)="signOut()">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>

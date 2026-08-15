@@ -32,6 +32,7 @@ def main() -> int:
     with factory.begin() as database:
         try:
             create_user(database, arguments.username, password)
+            database.flush()
         except (IntegrityError, ValueError) as error:
             parser.error(str(error))
     return 0

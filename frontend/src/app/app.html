@@ -1,16 +1,1 @@
-<header class="topbar">
-  <a class="brand" routerLink="/dashboard">Varys</a>
-  <span class="subtitle">Market-data preparation</span>
-</header>
-
-<div class="shell">
-  <nav aria-label="Primary navigation">
-    @for (item of navigation; track item.path) {
-      <a routerLink="{{ item.path }}" routerLinkActive="active">{{ item.label }}</a>
-    }
-  </nav>
-
-  <main>
-    <router-outlet />
-  </main>
-</div>
+<router-outlet />

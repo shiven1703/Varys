@@ -21,10 +21,10 @@ was clean when Phase 0 began.
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
 are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
 workspaces, and 1D parsers and canonical writers were owner-accepted on
-2026-08-15. Iterations 1E package publication and 1F publication failure
-handling were owner-accepted on 2026-08-15. Iteration 1G APIs are in progress.
-handling were owner-accepted on 2026-08-15. Iteration 1G APIs were
-owner-accepted on 2026-08-15. Iteration 1H daily UI is in progress.
+2026-08-15. Iterations 1E package publication, 1F publication failure handling,
+and 1G APIs were owner-accepted on 2026-08-15. Iteration 1H daily UI is in
+owner-accepted on 2026-08-15. Iteration 1I fixture workflow and vertical-slice
+acceptance are in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -106,10 +106,16 @@ remains pending until the Phase 1 acceptance suite passes.
   APIs never expose filesystem paths or perform worker work. Migration
   `0005_daily_run_trade_date` persists daily request dates and prevents
   duplicate nonterminal requests for the same date.
+- Iteration 1H adds a real-API Angular login and daily-run workspace with an
+  authenticated route boundary, server-refreshed run/events/packages, guarded
+  downloads, responsive light/dark styling, and an idempotent `make demo-up`
+  setup command. Re-running the demo preserves an existing administrator, and
+  direct duplicate administrator creation now returns a concise validation
+  error instead of a database traceback.
 
 ## Not implemented
 
-- Iterations 1H through 1I and all Phase 2 through Phase 7 work.
+- Iteration 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -232,7 +238,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1H only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1I only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 

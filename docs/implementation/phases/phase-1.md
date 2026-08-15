@@ -14,11 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1H in progress: minimal daily UI.
+- Iteration 1I in progress: fixture workflow and vertical-slice acceptance.
 
 ## Out of scope
 
-- Iteration 1I: Phase 1 E2E acceptance.
+- Phase 2 and later work.
 
 ## Implementation evidence
 
@@ -69,39 +69,6 @@ Verified locally:
 - `.venv/bin/alembic -c alembic.ini upgrade head --sql` — PostgreSQL migration
   SQL renders successfully without a live database.
 - `git diff --check`
-
-The owner accepted Iteration 1G on 2026-08-15. No Phase 1 acceptance status is
-claimed.
-
-The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
-claimed.
-
-Iteration 1F adds injected-failure coverage around generated workspace CSV
-writes, post-CSV verification, ZIP generation, the post-rename/pre-commit
-boundary, post-commit archive integrity, and startup reconciliation. Failed
-workspace writes leave only `.part` files; failed staging never becomes ready;
-a replacement package identity can rebuild safely; a database rollback after
-the final rename leaves the archive unavailable until reconciliation adopts it;
-and a corrupt committed archive is quarantined.
-
-Verified locally:
-
-- `make format`
-- `make check` — 37 unit tests passed; Ruff and mypy passed.
-- `make test-golden` — 2 golden tests passed.
-- `make test-failure-injection` — 3 tests passed.
-- `make test-integration` — 6 PostgreSQL tests correctly skipped because
-  `VARYS_TEST_DATABASE_URL` is not configured in this session, including the
-  post-rename rollback, post-commit, and reconciliation failure matrix.
-- `git diff --check`
-- Host-terminal `make compose-smoke` — a clean Compose database migrated to
-  `0003_run_dispatch`; all four PostgreSQL integration tests and the app/worker
-  health checks passed; the scripted cleanup removed containers and volumes.
-
-The Compose smoke command now passes the app container's configured PostgreSQL
-URL to `VARYS_TEST_DATABASE_URL`, so `make compose-smoke` runs the complete
-PostgreSQL integration suite instead of skipping it. Docker remains unavailable
-in this Codex session, but the host-terminal run above is successful evidence.
 
 Iteration 1C adds the `SourceAdapter` protocol, all contract-required response
 classifications, typed fixture references/responses/verification metadata, and
@@ -215,6 +182,40 @@ Verified locally:
   SQL renders successfully without a live database.
 - `git diff --check`
 
+The owner accepted Iteration 1G on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
+Iteration 1H replaces the static Angular shell with a minimal authenticated
+daily-run workspace. It uses the real cookie-authenticated APIs for login,
+session recovery, daily-run creation, run/events/package refresh, and verified
+ZIP download URLs. It stores only the CSRF token and selected opaque run ID in
+browser session storage; all run, event, and package fields are reloaded from
+the server after refresh. A non-ready package renders no download link, while a
+ready-with-warnings package surfaces its warning state. The UI adds an
+authenticated route guard and a responsive, minimal visual design without
+mocked business data. `make demo-up` now builds and starts the local Compose
+stack, waits for readiness, and invokes the existing interactive administrator
+command without placing the password in configuration or shell history. The UI
+automatically follows the browser's light or dark color preference, including
+the authentication, operational, status, error, and download states.
+Re-running `make demo-up` now detects and preserves an existing administrator
+instead of prompting for a password or failing. Direct duplicate administrator
+creation also reports a concise CLI validation error rather than a traceback.
+
+Verified locally:
+
+- `npm --prefix frontend run lint`
+- `npm --prefix frontend run build`
+- `npm --prefix frontend test -- --watch=false` — 2 unit tests passed,
+  including the incomplete-package download guard.
+- `sh -n scripts/demo/up.sh` and `make --dry-run demo-up
+  VARYS_ADMIN_USERNAME=operator`
+- `make check` — 39 Python unit tests passed; Ruff and mypy passed.
+- `git diff --check`
+
+The owner accepted Iteration 1H on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
@@ -263,10 +264,13 @@ Iteration 1G adds no dependency, toolchain, output-schema, parser-format, or
 contract version. Its APIs are additive within the locked `/api/v1` and
 `/files` namespaces; it advances the Alembic head to `0005_daily_run_trade_date`.
 
+Iteration 1H adds no dependency, toolchain, API, output-schema, parser-format,
+contract, or migration version. It consumes the existing locked API surface.
+
 ## Next actions
 
-Implement Iteration 1H minimal daily UI. Do not start a later Phase 1 iteration
-in the same increment.
+Implement Iteration 1I fixture workflow and Playwright vertical-slice
+acceptance. Do not start Phase 2 work in the same increment.
 
 ## Owner approval
 

@@ -51,6 +51,31 @@ The first Docker build must download base images and pinned dependencies. Later
 BuildKit builds reuse persistent npm and pip package caches; keep the Docker
 builder cache unless disk space requires pruning it.
 
+## Local UI demo
+
+With `.env` configured, start the local UI and create an administrator in one
+interactive command:
+
+```text
+make demo-up
+```
+
+It asks for an admin username, then the existing maintenance command asks for
+and confirms a password without saving it to shell history or configuration.
+Open `http://localhost:8000/login` after it completes. Supply a username
+non-interactively while retaining the password prompt with:
+
+```text
+make demo-up VARYS_ADMIN_USERNAME=operator
+```
+
+Re-running the command with an existing username keeps that account and
+password unchanged; it does not prompt or fail. To use another account, choose
+a different username.
+
+Use `make compose-down` to stop the local environment. `make compose-smoke` is
+a destructive test command and should not be used for a manual demo.
+
 ## CI checks
 
 One sequential GitHub Actions job on pushes to `main` runs the Gitleaks

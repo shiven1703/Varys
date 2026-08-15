@@ -88,6 +88,10 @@ output-schema, parser-format, or contract version changes are required. It
 adds endpoints within the locked `/api/v1` and `/files` namespaces and advances
 the Alembic migration head to `0005_daily_run_trade_date`.
 
+Iteration 1H uses only the existing pinned Angular, RxJS, and browser-platform
+dependencies. No dependency, toolchain, API, output-schema, parser-format,
+contract, or migration version changes are required.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

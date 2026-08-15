@@ -1,0 +1,114 @@
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Daily preparation</p>
+    <h1>Prepare market data</h1>
+    <p>Start one fixture-based run for a trading date, then follow its server-reported progress.</p>
+  </div>
+  <button class="quiet-button" type="button" (click)="refresh()" [disabled]="refreshing()">
+    {{ refreshing() ? 'Refreshing…' : 'Refresh' }}
+  </button>
+</section>
+
+@if (error(); as message) {
+  <p class="notice error" role="alert">{{ message }}</p>
+}
+
+<section class="run-card" aria-labelledby="start-run-title">
+  <div>
+    <h2 id="start-run-title">New daily run</h2>
+    <p>Choose the trading date to prepare.</p>
+  </div>
+  <div class="run-form">
+    <label for="trade-date">Trading date</label>
+    <input id="trade-date" type="date" [(ngModel)]="tradeDate" [disabled]="starting()" required />
+    <button type="button" (click)="startRun()" [disabled]="starting() || !tradeDate">
+      {{ starting() ? 'Starting…' : 'Start run' }}
+    </button>
+  </div>
+</section>
+
+@if (run(); as currentRun) {
+  <section class="details-grid">
+    <article class="panel status-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Current run</p>
+          <h2>{{ currentRun.trade_date }}</h2>
+        </div>
+        <span class="status" [class]="'status ' + stateTone(currentRun.state)">
+          {{ stateLabel(currentRun.state) }}
+        </span>
+      </div>
+      <dl>
+        <div><dt>Run ID</dt><dd>{{ currentRun.id }}</dd></div>
+        <div><dt>Requested action</dt><dd>{{ currentRun.requested_action ? stateLabel(currentRun.requested_action) : 'None' }}</dd></div>
+        <div><dt>Updated</dt><dd>{{ currentRun.updated_at }}</dd></div>
+      </dl>
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Packages</p>
+          <h2>Output</h2>
+        </div>
+      </div>
+      @if (currentPackages().length === 0) {
+        <p class="empty">No package is ready for this run yet.</p>
+      } @else {
+        <ul class="package-list">
+          @for (dataPackage of currentPackages(); track dataPackage.id) {
+            <li>
+              <div>
+                <strong>{{ dataPackage.kind }} package</strong>
+                <span class="status" [class]="'status ' + stateTone(dataPackage.state)">
+                  {{ stateLabel(dataPackage.state) }}
+                </span>
+                @if (dataPackage.state === 'READY_WITH_WARNINGS') {
+                  <p class="warning">Ready with warnings. Review the preparation report in the archive.</p>
+                }
+              </div>
+              @if (canDownload(dataPackage)) {
+                <a class="download" [href]="downloadUrl(dataPackage)">Download ZIP</a>
+              } @else {
+                <span class="download unavailable" aria-disabled="true">Download unavailable</span>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </section>
+
+  <section class="panel events" aria-labelledby="events-title">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Run history</p>
+        <h2 id="events-title">Events</h2>
+      </div>
+    </div>
+    @if (events().length === 0) {
+      <p class="empty">Waiting for the worker to record progress.</p>
+    } @else {
+      <ol>
+        @for (event of events(); track event.sequence) {
+          <li>
+            <span class="event-sequence">{{ event.sequence }}</span>
+            <div>
+              <strong>{{ stateLabel(event.event_type) }}</strong>
+              <p>
+                {{ event.from_state ? stateLabel(event.from_state) + ' → ' : '' }}{{ event.to_state ? stateLabel(event.to_state) : '' }}
+              </p>
+            </div>
+            <time>{{ event.created_at }}</time>
+          </li>
+        }
+      </ol>
+    }
+  </section>
+} @else {
+  <section class="empty-state">
+    <h2>No daily run selected</h2>
+    <p>Start a run above. Its current state will be restored from the server when you refresh this page.</p>
+  </section>
+}

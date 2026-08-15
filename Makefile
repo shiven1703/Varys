@@ -7,7 +7,7 @@ VENV_PYTEST := $(VENV)/bin/pytest
 BACKEND_PYTHONPATH := PYTHONPATH=backend
 
 .DEFAULT_GOAL := check
-.PHONY: bootstrap format lint typecheck test test-unit test-integration test-golden test-failure-injection test-e2e build compose-up compose-down compose-smoke check
+.PHONY: bootstrap format lint typecheck test test-unit test-integration test-golden test-failure-injection test-e2e build compose-up compose-down compose-smoke demo-up check
 
 bootstrap:
 	$(PYTHON) -m venv $(VENV)
@@ -52,5 +52,8 @@ compose-down:
 
 compose-smoke:
 	sh scripts/ci/compose-smoke.sh
+
+demo-up:
+	sh scripts/demo/up.sh "$(VARYS_ADMIN_USERNAME)"
 
 check: lint typecheck test-unit
