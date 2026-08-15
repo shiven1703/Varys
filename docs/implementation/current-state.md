@@ -135,7 +135,9 @@ service, volume, or network has been daemon-validated in this Codex session.
 The image uses current pinned Bookworm Python/Node bases, Debian security
 upgrades, and removes unneeded `setuptools` and `wheel` after dependency
 installation so their vendored build-time metadata is absent from the runtime
-image scanned by Trivy.
+image scanned by Trivy. The image scan retains its HIGH/CRITICAL gate; its
+temporary `.trivyignore` expires on 2026-09-15 and suppresses only two stale
+third-party-SBOM findings for packages absent from the final package inventory.
 
 The locked target topology is documented: FastAPI app and dedicated worker share
 one Python codebase and application image, PostgreSQL is the only dispatch

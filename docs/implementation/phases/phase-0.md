@@ -208,8 +208,11 @@ Python/Node Bookworm bases, applies Debian upgrades, and pins secure container
 packaging tools. A later scan confirmed the Debian base has zero findings, but
 reported vulnerable metadata vendored inside `setuptools`; `setuptools` and
 `wheel` are now removed after dependency installation because neither is needed
-at runtime. Trivy scans image vulnerabilities only; full-history Gitleaks
-remains the separate secret scanner.
+at runtime. A further scan still reported two findings for packages absent from
+the final package inventory and warned that its third-party SBOM can be
+inaccurate; `.trivyignore` suppresses only those IDs until 2026-09-15 while the
+HIGH/CRITICAL gate remains enabled. Trivy scans image vulnerabilities only;
+full-history Gitleaks remains the separate secret scanner.
 
 ## Deviations from plan
 

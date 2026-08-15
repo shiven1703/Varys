@@ -50,6 +50,7 @@ jobs:
           ignore-unfixed: true
           scanners: vuln
           severity: CRITICAL,HIGH
+          trivyignores: .trivyignore
       - run: python -m pip install pip-audit==2.9.0
       - run: pip-audit --requirement requirements-dev.lock
       - run: npm --prefix frontend audit --omit=dev

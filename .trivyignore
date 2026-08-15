@@ -1,0 +1,4 @@
+# Detected only by Trivy's third-party SBOM after both packages were removed
+# from the runtime image. Revalidate before this temporary suppression expires.
+GHSA-6v7p-g79w-8964 exp:2026-09-15
+CVE-2025-47273 exp:2026-09-15
