@@ -54,6 +54,10 @@ is not itself approved.
 - Public-repository audit found no high-confidence secret in tracked content or
   reachable Git history; a full-history Gitleaks CI job now guards future
   pushes.
+- CI now uses one sequential job so one Docker image build is reused for
+  Compose smoke, Playwright, and Trivy instead of consuming separate free-tier
+  runner allocations. It builds `app` once, then starts app and worker from the
+  shared `varys:local` image. The worker remains alive until a shutdown signal.
 - Phase 1 handover is prepared but explicitly blocked until Phase 0 is
   acceptance-complete and owner-approved.
 

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import argparse
 import logging
+import signal
+from threading import Event
+from types import FrameType
 
 from varys.config import load_settings
 from varys.logging import configure_logging
@@ -23,7 +26,19 @@ def main() -> int:
     )
     if arguments.check:
         return 0
+    _wait_for_shutdown()
     return 0
+
+
+def _wait_for_shutdown() -> None:
+    shutdown = Event()
+
+    def request_shutdown(_signal_number: int, _frame: FrameType | None) -> None:
+        shutdown.set()
+
+    signal.signal(signal.SIGINT, request_shutdown)
+    signal.signal(signal.SIGTERM, request_shutdown)
+    shutdown.wait()
 
 
 if __name__ == "__main__":

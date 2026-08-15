@@ -48,11 +48,11 @@ optional and disabled unless the `cloudflared` profile is selected with
 
 ## CI checks
 
-Pushes to `main` run Python format/lint/type/unit/golden/failure tests,
-frontend lint/unit/build, Docker Compose smoke, the Playwright shell smoke,
-dependency scans, a Trivy image scan, and a full-history Gitleaks secret scan.
-Tests prohibit uncontrolled network access; fixture or PostgreSQL integration
-tests are the explicit exceptions.
+One sequential GitHub Actions job on pushes to `main` runs the Gitleaks
+full-history scan, Python format/lint/type/unit/golden/failure tests, frontend
+lint/unit/build, one Docker Compose build reused for smoke and Playwright,
+dependency scans, and a Trivy image scan. Tests prohibit uncontrolled network
+access; fixture or PostgreSQL integration tests are the explicit exceptions.
 
 See `docs/implementation/implementation-plan.md` for the phase plan and
 `docs/implementation/current-state.md` for the implementation ledger.

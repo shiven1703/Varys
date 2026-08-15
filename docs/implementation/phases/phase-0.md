@@ -181,6 +181,16 @@ high-confidence credentials or private keys; Gitleaks now scans full history in
 CI. Phase 0 remains `IN_PROGRESS` until its Docker, browser, scanner,
 clean-PostgreSQL, and remote-CI acceptance evidence is complete.
 
+CI remediation after the first remote run corrected the Trivy action reference
+to `v0.36.0`, made the worker remain alive until shutdown, built app once then
+started app and worker from their shared image, and consolidated all checks into
+one sequential job that reuses the Compose image for smoke, Playwright, and
+Trivy. FastAPI `0.139.2`, Starlette `1.3.1`, Mako `1.3.12`, and pytest
+`9.0.3` resolve the reported pip-audit findings. Local `make check` passed 19
+unit tests; golden and failure tests, frontend lint/build/unit tests, Playwright
+discovery, `pip-audit`, Compose configuration, and shell syntax passed. Docker
+runtime and remote CI validation remain pending.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A

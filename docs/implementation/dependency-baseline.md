@@ -26,14 +26,19 @@ Python packages. It retains the venv-provided pip and does not upgrade it.
 | --- | --- | --- |
 | setuptools | 75.8.0 | Editable project installation backend. |
 | Alembic | 1.14.1 | PostgreSQL migration management. |
-| FastAPI | 0.115.12 | HTTP application framework. |
+| FastAPI | 0.139.2 | HTTP application framework. |
 | httpx | 0.28.1 | In-process HTTP testing support. |
 | mypy | 1.15.0 | Static type checks. |
-| pytest | 8.3.5 | Python test runner. |
+| pytest | 9.0.3 | Python test runner. |
 | ruff | 0.9.10 | Formatting and linting. |
 | psycopg | 3.2.4 | PostgreSQL database driver. |
 | SQLAlchemy | 2.0.38 | Database engine and sessions. |
 | Uvicorn | 0.34.0 | ASGI process server. |
+
+FastAPI `0.139.2`, Starlette `1.3.1`, Mako `1.3.12`, and pytest `9.0.3`
+replace the vulnerable Phase 0 pins reported by `pip-audit`; their newly
+required `annotated-doc` and `Pygments` transitive pins are retained in
+`requirements-dev.lock`.
 
 Iteration 0D adds FastAPI and Uvicorn for the inert API/worker bootstrap;
 Iteration 0E adds the PostgreSQL stack. Storage uses the standard library. The
