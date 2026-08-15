@@ -18,8 +18,8 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 1: `IN_PROGRESS` — Phase 0 is accepted and the owner accepted Iteration
-1A; Iteration 1B is next.
+Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
+are owner-accepted; Iteration 1B run-domain implementation is in progress.
 Implementation plan revision: 3
 
 Phase 1 is authorized to start with Iteration 1A only. Its owner approval
@@ -69,6 +69,10 @@ remains pending until the Phase 1 acceptance suite passes.
   token hashes, an HttpOnly/Secure/SameSite=Lax cookie, 12-hour idle expiry,
   seven-day absolute lifetime, session rotation, CSRF-protected logout, and
   disabled-user/expired-session rejection.
+- Iteration 1B begins the worker-facing PostgreSQL run domain: locked states,
+  row-locked queued-run claiming, leases, heartbeats, expired-lease recovery,
+  and ordered run events. Its persistence migration, constraints, tests, and
+  worker integration remain incomplete.
 
 ## Not implemented
 
@@ -190,6 +194,6 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1B only. Review affected contract, schema, toolchain,
-and dependency versions in every increment; update their versioned records
-whenever a change is made.
+Complete Phase 1 Iteration 1B only. Review affected contract, schema,
+toolchain, and dependency versions in every increment; update their versioned
+records whenever a change is made.

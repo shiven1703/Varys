@@ -14,13 +14,12 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1A only: users, Argon2id password hashes, PostgreSQL-backed
-  revocable sessions, `varys create-admin`, login/logout/current-user routes,
-  secure session cookies, CSRF, expiry, and protected access.
+- Iteration 1B in progress: run persistence, append-only events, PostgreSQL
+  claiming, leases, heartbeats, recovery, and safe pause/cancel controls.
 
 ## Out of scope
 
-- Iterations 1B through 1I: runs, fixtures, parsing, package publication,
+- Iterations 1C through 1I: fixtures, parsing, package publication,
   downloads, UI, and Phase 1 E2E acceptance.
 
 ## Implementation evidence
@@ -57,6 +56,12 @@ owner-approved on 2026-08-15. The owner accepted Iteration 1A on 2026-08-15.
 Its local PostgreSQL and Compose evidence remains pending for the full Phase 1
 acceptance suite.
 
+Iteration 1B began after the owner accepted 1A. The owner accepted its initial
+domain checkpoint on 2026-08-15: `runs.py` defines the locked run states,
+row-locked queued-run claiming, five-minute leases, heartbeats, expired-lease
+recovery, and ordered state events. The migration, database constraints, tests,
+and worker integration remain required before Iteration 1B itself is complete.
+
 ## Version maintenance
 
 Every Phase 1 increment must review affected dependency, toolchain, contract,
@@ -66,9 +71,9 @@ file and `docs/implementation/dependency-baseline.md`.
 
 ## Next actions
 
-Start Iteration 1B only: run persistence, append-only events, PostgreSQL
-claiming, leases, heartbeats, recovery, and safe pause/cancel controls. Do not
-start a later Phase 1 iteration in the same increment.
+Complete Iteration 1B only: add its migration, database constraints, tests, and
+worker integration. Do not start a later Phase 1 iteration in the same
+increment.
 
 ## Owner approval
 
