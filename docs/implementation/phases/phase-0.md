@@ -1,7 +1,7 @@
 # Phase 0 State
 
-Status: IN_PROGRESS
-Owner approved: no
+Status: APPROVED
+Owner approved: yes (2026-08-15)
 Plan revision: 3
 Started from commit: `27d0fea59b79086af589350c36d26ab70bc58854`
 Current commit: Resolve with `git rev-parse HEAD` before each evidence update
@@ -178,8 +178,9 @@ represented as passed.
 The owner accepted Iteration 0J on 2026-08-15. This acceptance does not approve
 Phase 0. A tracked-file and reachable-history public-repository audit found no
 high-confidence credentials or private keys; Gitleaks now scans full history in
-CI. Phase 0 remains `IN_PROGRESS` until its Docker, browser, scanner,
-clean-PostgreSQL, and remote-CI acceptance evidence is complete.
+CI. At that checkpoint, Phase 0 remained `IN_PROGRESS` until its Docker,
+browser, scanner, clean-PostgreSQL, and remote-CI acceptance evidence was
+complete.
 
 CI remediation after the first remote run corrected the Trivy action reference
 to `v0.36.0`, made the worker remain alive until shutdown, built app once then
@@ -214,6 +215,12 @@ inaccurate; `.trivyignore` suppresses only those IDs until 2026-09-15 while the
 HIGH/CRITICAL gate remains enabled. Trivy scans image vulnerabilities only;
 full-history Gitleaks remains the separate secret scanner.
 
+The owner reported that all required GitHub Actions CI checks passed on
+2026-08-15, including the Docker Compose smoke, clean PostgreSQL migration and
+integration path, Playwright smoke, dependency audits, and Trivy image scan.
+The owner then explicitly approved Phase 0. This completes the Phase 0
+acceptance suite and authorizes Phase 1 Iteration 1A.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -223,7 +230,8 @@ full-history Gitleaks remains the separate secret scanner.
 
 ## Known limitations
 
-- PostgreSQL integration execution is pending an available test database.
+- Local Docker execution remains unavailable to this Codex session; successful
+  main CI provides the required Phase 0 Docker and PostgreSQL evidence.
 - The bootstrap has no scheduler or production runtime yet.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
@@ -247,10 +255,12 @@ full-history Gitleaks remains the separate secret scanner.
 
 ## Next actions
 
-- Run the outstanding Phase 0 Docker, browser, scanner, clean-PostgreSQL, and
-  remote-CI acceptance checks. Do not begin Phase 1 until owner approval.
+- Begin only Phase 1 Iteration 1A using the Phase 1 handover and state files.
+- Review and update relevant dependency, toolchain, contract, and schema
+  versions in every Phase 1 increment.
 
 ## Owner approval
 
-Phase 0 is not approved. Pre-Phase approval authorizes Phase 0 to start, but
-only the owner may approve Phase 0 after its full acceptance suite passes.
+The owner explicitly approved Phase 0 on 2026-08-15 after the full CI suite
+passed. Phase 1 may begin, but only the owner may approve Phase 1 after its
+full acceptance suite passes.

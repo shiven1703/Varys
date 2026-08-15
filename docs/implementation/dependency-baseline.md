@@ -1,7 +1,8 @@
 # Dependency Baseline
 
-Status: Phase 0 Iteration 0I. Update this document with each dependency or
-toolchain change.
+Status: Phase 0 complete. Every implementation increment must review the
+affected dependency, toolchain, contract, and schema versions, and update this
+document whenever a dependency or toolchain version changes.
 
 ## Host prerequisites
 

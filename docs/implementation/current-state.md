@@ -13,14 +13,17 @@ was clean when Phase 0 began.
 ## Approved phases
 
 - Pre-Phase — approved by the owner on 2026-08-15.
+- Phase 0 — approved by the owner on 2026-08-15 after all required CI checks
+  passed.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — acceptance evidence pending
+Phase 1: `READY_TO_START` — Phase 0 is accepted; no Phase 1 implementation has
+started.
 Implementation plan revision: 3
 
-Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
-is not itself approved.
+Phase 1 is authorized to start with Iteration 1A only. Its owner approval
+remains pending until the Phase 1 acceptance suite passes.
 
 ## Implemented capabilities
 
@@ -58,18 +61,19 @@ is not itself approved.
   Compose smoke, Playwright, and Trivy instead of consuming separate free-tier
   runner allocations. It builds `app` once, then starts app and worker from the
   shared `varys:local` image. The worker remains alive until a shutdown signal.
-- Phase 1 handover is prepared but explicitly blocked until Phase 0 is
-  acceptance-complete and owner-approved.
+- Phase 1 handover and initial state artifact are prepared for the fixture-only
+  authentication increment.
 
 ## Not implemented
 
-- All Phase 0 through Phase 7 application work.
+- All Phase 1 through Phase 7 application work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
 
-No known failing tests. The unit suite passes 18 tests; the PostgreSQL
-integration test is skipped until `VARYS_TEST_DATABASE_URL` is supplied.
+No known failing tests. The owner reported that all required GitHub Actions CI
+checks passed on 2026-08-15, including Compose smoke, Playwright, dependency
+audits, and Trivy.
 
 ## Known limitations
 
@@ -80,14 +84,14 @@ integration test is skipped until `VARYS_TEST_DATABASE_URL` is supplied.
 
 ## Open risks
 
-- Docker client access is unavailable in the current Codex session because it
-  has not inherited Docker-group membership. The owner accepted deferring this
-  validation; it remains required for the later Compose increment.
+- Docker client access remains unavailable in the current Codex session because
+  it has not inherited Docker-group membership. Phase 0 Docker validation is
+  nevertheless complete through the successful main CI run.
 - Host resources are suitable for bootstrap, but later image builds should be
   monitored on this 7.2 GiB RAM development machine.
 - No unresolved cross-document contradiction is known after the 2026-08-15
-  planning alignment audit. Phase 0 must still surface any new ambiguity found
-  while turning the approved baselines into exact versioned contracts.
+  planning alignment audit. Phase 1 must surface any new ambiguity before it
+  changes a versioned contract or dependency baseline.
 
 ## Planning alignment review
 
@@ -176,6 +180,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Run the outstanding Phase 0 Docker, browser, scanner, clean-PostgreSQL, and
-remote-CI acceptance checks. Do not start Phase 1 work until the owner approves
-Phase 0.
+Start Phase 1 Iteration 1A only, using `docs/implementation/handoffs/phase-1.md`
+and `docs/implementation/phases/phase-1.md`. Review affected contract, schema,
+toolchain, and dependency versions in every increment; update their versioned
+records whenever a change is made.

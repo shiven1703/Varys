@@ -1,17 +1,17 @@
 # Phase 1 New-Chat Handover Prompt
 
 Copy the text below into a new Codex chat started from the Varys repository
-root **only after the owner explicitly approves Phase 0**.
+root. Phase 0 was explicitly owner-approved on 2026-08-15 after its full CI
+suite passed.
 
 ```text
 We are preparing to start Varys Phase 1 — fixture-based daily vertical slice.
 
 Do not rely on previous chat memory. Reconstruct state from the repository and
-do not begin implementation unless Phase 0 is explicitly owner-approved. At
-handover creation, Phase 0 implementation iterations are complete but Phase 0
-acceptance evidence is still pending Docker, browser, scanner,
-clean-PostgreSQL, and remote-CI execution. If current state is not Phase 0
-APPROVED, stop and report the blocker; do not change phase status yourself.
+do not begin implementation unless `current-state.md` and `phase-0.md` record
+Phase 0 as owner-approved. That approval was recorded on 2026-08-15 after all
+required GitHub Actions checks passed. If the state is inconsistent, stop and
+report the blocker; do not change phase status yourself.
 
 First read, in order:
 1. AGENTS.md
@@ -23,11 +23,12 @@ First read, in order:
 7. docs/implementation/varys_llm_handover_pre_implementation.md
 8. docs/implementation/current-state.md
 9. docs/implementation/phases/phase-0.md
-10. docs/implementation/risk-register.md
-11. docs/implementation/dependency-baseline.md
-12. docs/implementation/definition-of-done.md
-13. all relevant `v1` contracts under docs/contracts/
-14. ADR-001 and ADR-002 under docs/architecture/decisions/
+10. docs/implementation/phases/phase-1.md
+11. docs/implementation/risk-register.md
+12. docs/implementation/dependency-baseline.md
+13. docs/implementation/definition-of-done.md
+14. all relevant `v1` contracts under docs/contracts/
+15. ADR-001 and ADR-002 under docs/architecture/decisions/
 
 Then inspect the repository with:
 - git status --short --branch
@@ -56,6 +57,9 @@ the same increment.
 Before editing, report the verified baseline, Phase 0 approval, exact 1A scope,
 relevant contracts/ADRs, expected files, tests, risks, and discrepancies. After
 each increment, run focused checks, update current-state/phase/risk/dependency
-evidence, and wait for owner acceptance before committing. Only the owner may
-approve Phase 1 after its full acceptance suite passes.
+evidence, and wait for owner acceptance before committing. In every increment,
+review all affected dependency, toolchain, contract, output-schema, and parser
+versions; update the appropriate lockfiles and versioned documents whenever a
+version changes. Do not silently change or omit version maintenance. Only the
+owner may approve Phase 1 after its full acceptance suite passes.
 ```
