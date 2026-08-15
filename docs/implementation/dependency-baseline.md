@@ -58,6 +58,10 @@ Iteration 1A adds `argon2-cffi==25.1.0` with its pinned
 transitives. No contract, output-schema, parser-format, or API-version change
 was required: the new JSON endpoints use the locked `/api/v1` namespace.
 
+Iteration 1B adds no dependency or toolchain version. It advances the Alembic
+schema head from `0002_authentication` to `0003_run_dispatch`; all API,
+contract, output-schema, and parser-format versions remain unchanged.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

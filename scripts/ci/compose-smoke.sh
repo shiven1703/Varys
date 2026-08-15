@@ -15,7 +15,7 @@ trap cleanup EXIT
 docker compose build app
 docker compose up --no-build --detach --wait
 docker compose ps
-docker compose exec --no-TTY app python -m pytest -m integration backend/tests/integration
+docker compose exec --no-TTY app sh -c 'VARYS_TEST_DATABASE_URL="$VARYS_DATABASE_URL" python -m pytest -m integration backend/tests/integration'
 docker compose exec --no-TTY app python -c "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/health/live')"
 docker compose exec --no-TTY app python -c "from urllib.request import urlopen; assert b'app-root' in urlopen('http://127.0.0.1:8000/').read()"
 

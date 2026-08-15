@@ -19,10 +19,11 @@ was clean when Phase 0 began.
 ## Current phase and status
 
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
-are owner-accepted; Iteration 1B run-domain implementation is in progress.
+are owner-accepted; Iteration 1B run dispatch was owner-accepted on
+2026-08-15. Iteration 1C is the next scoped increment.
 Implementation plan revision: 3
 
-Phase 1 is authorized to start with Iteration 1A only. Its owner approval
+Phase 1 continues through owner-accepted scoped increments. Its owner approval
 remains pending until the Phase 1 acceptance suite passes.
 
 ## Implemented capabilities
@@ -69,14 +70,17 @@ remains pending until the Phase 1 acceptance suite passes.
   token hashes, an HttpOnly/Secure/SameSite=Lax cookie, 12-hour idle expiry,
   seven-day absolute lifetime, session rotation, CSRF-protected logout, and
   disabled-user/expired-session rejection.
-- Iteration 1B begins the worker-facing PostgreSQL run domain: locked states,
-  row-locked queued-run claiming, leases, heartbeats, expired-lease recovery,
-  and ordered run events. Its persistence migration, constraints, tests, and
-  worker integration remain incomplete.
+- Iteration 1B implements the worker-facing PostgreSQL run domain: locked
+  states, row-locked queued-run claiming, a transaction advisory lock for the
+  one-active-run race, five-minute leases, heartbeats, expired-lease recovery,
+  ordered append-only events, checkpointed pause/cancel controls, and safe
+  terminal transitions. Migration `0003_run_dispatch`, unit tests, PostgreSQL
+  integration tests, and worker startup reconciliation/claim integration are
+  present. A clean Compose PostgreSQL run passed all four integration tests.
 
 ## Not implemented
 
-- Phase 1 Iterations 1B through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1C through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -102,9 +106,9 @@ audits, and Trivy.
 - No unresolved cross-document contradiction is known after the 2026-08-15
   planning alignment audit. Phase 1 must surface any new ambiguity before it
   changes a versioned contract or dependency baseline.
-- Iteration 1A's clean PostgreSQL migration/authentication integration proof
-  remains unavailable locally because `VARYS_TEST_DATABASE_URL` is unset; this
-  is not a passing result, although the owner accepted the increment.
+- This Codex session cannot access the Docker daemon, but the user completed a
+  clean host-terminal Compose run on 2026-08-15: migrations, all four
+  PostgreSQL integration tests, app/worker health checks, and cleanup passed.
 
 ## Planning alignment review
 
@@ -129,8 +133,8 @@ Resolved and recorded:
 
 ## Current database migration revision
 
-`0002_authentication` (head). Users and authentication-session tables exist;
-all other product tables remain unimplemented.
+`0003_run_dispatch` (head). Users, authentication sessions, runs, and
+append-only run events exist; all other product tables remain unimplemented.
 
 ## Current output schema versions
 

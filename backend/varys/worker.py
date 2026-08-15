@@ -9,7 +9,9 @@ from threading import Event
 from types import FrameType
 
 from varys.config import load_settings
+from varys.db import create_session_factory
 from varys.logging import configure_logging
+from varys.runs import claim_next_run, recover_expired_leases
 
 _LOGGER = logging.getLogger("varys.worker")
 
@@ -20,6 +22,19 @@ def main() -> int:
     arguments = parser.parse_args()
     settings = load_settings()
     configure_logging(settings.log_level, service="worker")
+    if settings.database_url is not None:
+        factory = create_session_factory(settings.database_url)
+        with factory.begin() as database:
+            recovered = recover_expired_leases(database)
+            claimed = claim_next_run(database, settings.worker_id)
+        _LOGGER.info(
+            "worker dispatch reconciliation complete",
+            extra={
+                "service": "worker",
+                "recovered_runs": recovered,
+                "claimed_run_id": str(claimed.id) if claimed else None,
+            },
+        )
     _LOGGER.info(
         "worker bootstrap complete",
         extra={"service": "worker", "worker_id": settings.worker_id},

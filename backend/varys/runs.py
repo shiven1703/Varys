@@ -6,12 +6,13 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Uuid, select
+from sqlalchemy import DateTime, ForeignKey, String, Uuid, func, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from varys.auth import Base
 
 LEASE_DURATION = timedelta(minutes=5)
+_DISPATCH_LOCK_ID = 904_312_640
 
 
 class RunState(StrEnum):
@@ -24,6 +25,25 @@ class RunState(StrEnum):
     COMPLETED_WITH_WARNINGS = "COMPLETED_WITH_WARNINGS"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
+
+
+class RequestedAction(StrEnum):
+    PAUSE = "PAUSE"
+    CANCEL = "CANCEL"
+
+
+ACTIVE_RUN_STATES = (
+    RunState.RUNNING,
+    RunState.WAITING_FOR_SOURCE,
+    RunState.PAUSED,
+    RunState.SOURCE_BLOCKED,
+)
+TERMINAL_RUN_STATES = (
+    RunState.COMPLETED,
+    RunState.COMPLETED_WITH_WARNINGS,
+    RunState.FAILED,
+    RunState.CANCELLED,
+)
 
 
 class Run(Base):
@@ -57,6 +77,12 @@ class RunEvent(Base):
 
 
 def claim_next_run(database: Session, worker_id: str) -> Run | None:
+    database.execute(select(func.pg_advisory_xact_lock(_DISPATCH_LOCK_ID)))
+    active_run = database.scalar(
+        select(Run).where(Run.state.in_(ACTIVE_RUN_STATES)).with_for_update().limit(1)
+    )
+    if active_run is not None:
+        return None
     run = database.scalar(
         select(Run)
         .where(Run.state == RunState.QUEUED)
@@ -107,10 +133,95 @@ def recover_expired_leases(database: Session) -> int:
     return count
 
 
+def create_run(database: Session, kind: str) -> Run:
+    normalized_kind = kind.strip()
+    if not normalized_kind:
+        raise ValueError("run kind is required")
+    now = _now()
+    run = Run(
+        kind=normalized_kind,
+        state=RunState.QUEUED,
+        worker_id=None,
+        lease_expires_at=None,
+        heartbeat_at=None,
+        requested_action=None,
+        created_at=now,
+        updated_at=now,
+    )
+    database.add(run)
+    database.flush()
+    _append_event(database, run, "CREATED", None, RunState.QUEUED)
+    return run
+
+
+def request_action(database: Session, run: Run, action: RequestedAction) -> bool:
+    if action not in (RequestedAction.PAUSE, RequestedAction.CANCEL):
+        raise ValueError("unsupported requested action")
+    if run.state != RunState.RUNNING or run.requested_action is not None:
+        return False
+    run.requested_action = action
+    run.updated_at = _now()
+    _append_event(database, run, f"{action}_REQUESTED", run.state, run.state)
+    return True
+
+
+def apply_requested_action_at_checkpoint(
+    database: Session, run: Run, worker_id: str
+) -> RunState | None:
+    if run.state != RunState.RUNNING or run.worker_id != worker_id:
+        return None
+    action = run.requested_action
+    if action is None:
+        return None
+    if action == RequestedAction.PAUSE:
+        target_state = RunState.PAUSED
+    elif action == RequestedAction.CANCEL:
+        target_state = RunState.CANCELLED
+    else:
+        raise ValueError("unsupported requested action")
+    _transition(database, run, target_state, f"{action}_APPLIED")
+    _clear_worker_lease(run)
+    run.requested_action = None
+    return target_state
+
+
+def resume_paused_run(database: Session, run: Run) -> bool:
+    if run.state != RunState.PAUSED:
+        return False
+    _transition(database, run, RunState.QUEUED, "RESUMED")
+    _clear_worker_lease(run)
+    return True
+
+
+def finish_run_at_checkpoint(
+    database: Session, run: Run, worker_id: str, state: RunState
+) -> bool:
+    if (
+        run.state != RunState.RUNNING
+        or run.worker_id != worker_id
+        or state not in TERMINAL_RUN_STATES
+        or run.requested_action is not None
+    ):
+        return False
+    _transition(database, run, state, state)
+    _clear_worker_lease(run)
+    return True
+
+
 def _transition(database: Session, run: Run, state: RunState, event_type: str) -> None:
     previous_state = run.state
+    _append_event(database, run, event_type, previous_state, state)
     run.state = state
     run.updated_at = _now()
+
+
+def _append_event(
+    database: Session,
+    run: Run,
+    event_type: str,
+    from_state: str | None,
+    to_state: str | None,
+) -> None:
     last_sequence = database.scalar(
         select(RunEvent.sequence)
         .where(RunEvent.run_id == run.id)
@@ -122,11 +233,17 @@ def _transition(database: Session, run: Run, state: RunState, event_type: str) -
             run_id=run.id,
             sequence=(last_sequence or 0) + 1,
             event_type=event_type,
-            from_state=previous_state,
-            to_state=state,
-            created_at=run.updated_at,
+            from_state=from_state,
+            to_state=to_state,
+            created_at=_now(),
         )
     )
+
+
+def _clear_worker_lease(run: Run) -> None:
+    run.worker_id = None
+    run.lease_expires_at = None
+    run.heartbeat_at = None
 
 
 def _now() -> datetime:

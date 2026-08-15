@@ -42,8 +42,9 @@ a separate frontend or Nginx runtime.
 Copy `.env.example` to `.env`, choose a local-only PostgreSQL password, then
 run `make build` and `make compose-up`. The app is available only on
 `http://127.0.0.1:8000`; PostgreSQL has no host port. `make compose-smoke`
-builds, verifies, and removes the local Compose topology. Cloudflare Tunnel is
-optional and disabled unless the `cloudflared` profile is selected with
+builds, runs the PostgreSQL integration suite against the clean Compose
+database, verifies, and removes the local Compose topology. Cloudflare Tunnel
+is optional and disabled unless the `cloudflared` profile is selected with
 `CLOUDFLARE_TUNNEL_TOKEN` set.
 
 ## CI checks
