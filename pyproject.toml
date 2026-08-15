@@ -10,9 +10,12 @@ requires-python = ">=3.12,<3.13"
 
 [project.optional-dependencies]
 dev = [
+  "fastapi==0.115.12",
+  "httpx==0.28.1",
   "mypy==1.15.0",
   "pytest==8.3.5",
   "ruff==0.9.10",
+  "uvicorn==0.34.0",
 ]
 
 [tool.setuptools]
@@ -32,6 +35,6 @@ select = ["E", "F", "I"]
 
 [tool.mypy]
 python_version = "3.12"
-files = ["backend/tests"]
+files = ["backend/varys", "backend/tests"]
 strict = true
 warn_unused_configs = true

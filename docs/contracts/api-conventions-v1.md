@@ -2,9 +2,11 @@
 
 Status: locked for Phase 1 fixtures. Version: `v1`.
 
-The Angular frontend is served at `/`. JSON endpoints live only below
-`/api/v1/`; authenticated binary package downloads live only below `/files/`.
-No JSON endpoint returns raw package bytes and no file endpoint accepts a
+The Angular frontend is served at `/`. Versioned JSON resource endpoints live
+only below `/api/v1/`; authenticated binary package downloads live only below
+`/files/`. Operational health endpoints are the explicit exception required by
+the product specification: `/api/health/live` and `/api/health/ready`. No JSON
+endpoint returns raw package bytes and no file endpoint accepts a
 browser-provided filesystem path.
 
 JSON requests and responses use UTF-8 `application/json`; successful JSON

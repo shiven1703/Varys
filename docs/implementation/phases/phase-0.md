@@ -41,8 +41,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0A: COMPLETED
 - Iteration 0B: COMPLETED
 - Iteration 0C: COMPLETED
-- Iteration 0D: NOT_STARTED
-- Iteration 0E: NOT_STARTED
+- Iteration 0D: COMPLETED
+- Iteration 0E: IN_PROGRESS
 - Iteration 0F: NOT_STARTED
 - Iteration 0G: NOT_STARTED
 - Iteration 0H: NOT_STARTED
@@ -93,6 +93,18 @@ The owner accepted Iteration 0C on 2026-08-15. This acceptance does not approve
 Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
 passes and the owner explicitly approves the phase.
 
+Iteration 0D bootstrap review passed. The shared configuration loader rejects
+unknown `VARYS_` settings and validates bootstrap values; app and worker emit
+structured JSON logs with request context and secret redaction. The FastAPI app
+serves `/api/health/live` (and its versioned alias) with `200 {"status":"ok"}`;
+the API and worker both pass independent `python -m ... --check` process tests.
+No worker work runs in the app process. `make check` passed 7 unit tests, Ruff,
+and mypy.
+
+The owner accepted Iteration 0D on 2026-08-15. This acceptance does not approve
+Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
+passes and the owner explicitly approves the phase.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -102,9 +114,7 @@ passes and the owner explicitly approves the phase.
 
 ## Known limitations
 
-- No application runtime exists yet.
-- The only Python test is the Iteration 0C toolchain smoke test; product tests
-  begin with their owning implementation increments.
+- The bootstrap has no database, storage, scheduler, or production runtime yet.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
 
@@ -127,7 +137,7 @@ passes and the owner explicitly approves the phase.
 
 ## Next actions
 
-- Begin Iteration 0D independent FastAPI and worker bootstraps.
+- Begin Iteration 0E PostgreSQL and Alembic foundations.
 
 ## Owner approval
 

@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0D
+Phase 0: `IN_PROGRESS` — Iteration 0E
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -33,16 +33,18 @@ is not itself approved.
   are present under `docs/implementation/` for Phase 0 contract work.
 - A repository-local Python toolchain, pinned development dependency lock, and
   stable root developer commands are implemented and verified.
+- The FastAPI and dedicated worker boot independently from shared Python code;
+  validated startup configuration, structured JSON logging, request IDs, and
+  the liveness endpoint are implemented.
 
 ## Not implemented
 
 - All Phase 0 through Phase 7 application work.
-- Application source code, database migrations, runtime images, Compose
-  topology, product tests, and CI.
+- Database migrations, runtime images, Compose topology, product tests, and CI.
 
 ## Known failing tests
 
-No known failing tests. The Iteration 0C toolchain smoke test passes.
+No known failing tests. The Iteration 0D bootstrap suite passes 7 unit tests.
 
 ## Known limitations
 
@@ -130,5 +132,5 @@ build, and Compose targets identify the later iteration that owns them.
 
 ## Next allowed implementation work
 
-Begin Iteration 0D independent FastAPI and worker bootstraps. Do not start
-Phase 1 work.
+Begin Iteration 0E PostgreSQL and Alembic foundations. Do not start Phase 1
+work.

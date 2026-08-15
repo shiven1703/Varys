@@ -22,9 +22,14 @@ Python packages. It retains the venv-provided pip and does not upgrade it.
 | Package | Version | Purpose |
 | --- | --- | --- |
 | setuptools | 75.8.0 | Editable project installation backend. |
+| FastAPI | 0.115.12 | HTTP application framework. |
+| httpx | 0.28.1 | In-process HTTP testing support. |
 | mypy | 1.15.0 | Static type checks. |
 | pytest | 8.3.5 | Python test runner. |
 | ruff | 0.9.10 | Formatting and linting. |
+| Uvicorn | 0.34.0 | ASGI process server. |
 
-Runtime dependencies are intentionally absent until Iteration 0D establishes
-the FastAPI and worker bootstrap. The project requires Python `>=3.12,<3.13`.
+Iteration 0D adds only FastAPI and Uvicorn for the inert API/worker bootstrap;
+database, storage, and production dependencies remain deferred to their owning
+iterations. The project requires Python `>=3.12,<3.13`. Transitive pins
+resolved for the bootstrap are retained in `requirements-dev.lock`.
