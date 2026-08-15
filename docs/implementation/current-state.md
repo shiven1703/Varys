@@ -132,6 +132,8 @@ PostgreSQL, persistent data volumes, and an optional disabled-by-default
 `/files/` remain reserved server routes. The app entrypoint applies migrations
 through the validated database helper before starting FastAPI. No image,
 service, volume, or network has been daemon-validated in this Codex session.
+The image uses current pinned Bookworm Python/Node bases, Debian security
+upgrades, and secure container packaging-tool pins for Trivy validation.
 
 The locked target topology is documented: FastAPI app and dedicated worker share
 one Python codebase and application image, PostgreSQL is the only dispatch

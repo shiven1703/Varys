@@ -202,6 +202,12 @@ health check. The entrypoint now uses the existing validated
 `upgrade_database()` helper, and smoke cleanup prints service logs on a future
 failure before removing containers.
 
+Trivy then reported fixed HIGH/CRITICAL findings in the two-year-old runtime
+base and its bundled packaging tools. The Docker image now uses current pinned
+Python/Node Bookworm bases, applies Debian upgrades, and pins secure container
+packaging tools. Trivy scans image vulnerabilities only; full-history Gitleaks
+remains the separate secret scanner.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
