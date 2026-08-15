@@ -1,0 +1,9 @@
+# Generated dependency baseline for Phase 0C. Keep every tool dependency pinned.
+iniconfig==2.3.0
+mypy==1.15.0
+mypy_extensions==1.1.0
+packaging==26.3
+pluggy==1.6.0
+pytest==8.3.5
+ruff==0.9.10
+typing_extensions==4.16.0

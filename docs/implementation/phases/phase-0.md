@@ -40,7 +40,7 @@ for the Phase 1 fixture-based vertical slice.
 
 - Iteration 0A: COMPLETED
 - Iteration 0B: COMPLETED
-- Iteration 0C: NOT_STARTED
+- Iteration 0C: COMPLETED
 - Iteration 0D: NOT_STARTED
 - Iteration 0E: NOT_STARTED
 - Iteration 0F: NOT_STARTED
@@ -83,6 +83,16 @@ The owner accepted Iteration 0B on 2026-08-15. This acceptance does not approve
 Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
 passes and the owner explicitly approves the phase.
 
+Iteration 0C tooling review passed. `make bootstrap` created `.venv` and
+installed the exact pins in `requirements-dev.lock`; `make format` left the
+tooling test unchanged; `make check` passed Ruff, mypy, and one pytest unit
+test. The stable root command surface is documented in `README.md`; commands
+owned by later iterations are explicit placeholders.
+
+The owner accepted Iteration 0C on 2026-08-15. This acceptance does not approve
+Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
+passes and the owner explicitly approves the phase.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -92,7 +102,9 @@ passes and the owner explicitly approves the phase.
 
 ## Known limitations
 
-- No application project, tests, or Phase 0 runtime exist yet.
+- No application runtime exists yet.
+- The only Python test is the Iteration 0C toolchain smoke test; product tests
+  begin with their owning implementation increments.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
 
@@ -115,7 +127,7 @@ passes and the owner explicitly approves the phase.
 
 ## Next actions
 
-- Begin Iteration 0C Python tooling and stable developer commands.
+- Begin Iteration 0D independent FastAPI and worker bootstraps.
 
 ## Owner approval
 

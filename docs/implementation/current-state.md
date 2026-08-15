@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0C
+Phase 0: `IN_PROGRESS` — Iteration 0D
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -31,16 +31,18 @@ is not itself approved.
   installed and verified.
 - The three approved planning/source documents named by the implementation plan
   are present under `docs/implementation/` for Phase 0 contract work.
+- A repository-local Python toolchain, pinned development dependency lock, and
+  stable root developer commands are implemented and verified.
 
 ## Not implemented
 
 - All Phase 0 through Phase 7 application work.
-- Application source code, dependency manifests, database migrations, runtime
-  images, Compose topology, tests, and CI.
+- Application source code, database migrations, runtime images, Compose
+  topology, product tests, and CI.
 
 ## Known failing tests
 
-No application test suite exists yet.
+No known failing tests. The Iteration 0C toolchain smoke test passes.
 
 ## Known limitations
 
@@ -114,8 +116,9 @@ Nginx, or separate scheduler is part of V1.
 
 ## Current developer commands
 
-Pre-Phase host checks are documented in the implementation plan. Stable project
-commands will be created in Phase 0 Iteration 0C.
+`make bootstrap`, `make format`, `make lint`, `make typecheck`, `make test`,
+`make test-unit`, and `make check` are implemented. Integration, golden, E2E,
+build, and Compose targets identify the later iteration that owns them.
 
 ## Decisions due before later phases
 
@@ -127,5 +130,5 @@ commands will be created in Phase 0 Iteration 0C.
 
 ## Next allowed implementation work
 
-Begin Iteration 0C Python tooling and stable developer commands. Do not start
+Begin Iteration 0D independent FastAPI and worker bootstraps. Do not start
 Phase 1 work.
