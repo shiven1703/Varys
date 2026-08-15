@@ -133,7 +133,9 @@ PostgreSQL, persistent data volumes, and an optional disabled-by-default
 through the validated database helper before starting FastAPI. No image,
 service, volume, or network has been daemon-validated in this Codex session.
 The image uses current pinned Bookworm Python/Node bases, Debian security
-upgrades, and secure container packaging-tool pins for Trivy validation.
+upgrades, and removes unneeded `setuptools` and `wheel` after dependency
+installation so their vendored build-time metadata is absent from the runtime
+image scanned by Trivy.
 
 The locked target topology is documented: FastAPI app and dedicated worker share
 one Python codebase and application image, PostgreSQL is the only dispatch

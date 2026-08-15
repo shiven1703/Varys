@@ -205,7 +205,10 @@ failure before removing containers.
 Trivy then reported fixed HIGH/CRITICAL findings in the two-year-old runtime
 base and its bundled packaging tools. The Docker image now uses current pinned
 Python/Node Bookworm bases, applies Debian upgrades, and pins secure container
-packaging tools. Trivy scans image vulnerabilities only; full-history Gitleaks
+packaging tools. A later scan confirmed the Debian base has zero findings, but
+reported vulnerable metadata vendored inside `setuptools`; `setuptools` and
+`wheel` are now removed after dependency installation because neither is needed
+at runtime. Trivy scans image vulnerabilities only; full-history Gitleaks
 remains the separate secret scanner.
 
 ## Deviations from plan

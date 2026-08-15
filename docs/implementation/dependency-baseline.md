@@ -46,8 +46,10 @@ Iteration 0H image uses Python `3.12.13-slim-bookworm` and Node
 `24.18.0-bookworm-slim`, applies Debian security upgrades, then installs the
 exact Python pins from `requirements-dev.lock`. It also pins container-only
 `pip==26.2.1`, `setuptools==78.1.1`, and `wheel==0.46.2` to resolve Trivy's
-reported packaging-tool findings. The project requires Python `>=3.12,<3.13`.
-Transitive pins are retained in `requirements-dev.lock`.
+reported packaging-tool findings, then removes `setuptools` and `wheel` from
+the final runtime image because the application does not require build tooling.
+The project requires Python `>=3.12,<3.13`. Transitive pins are retained in
+`requirements-dev.lock`.
 
 ## Frontend dependencies
 

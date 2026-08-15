@@ -18,7 +18,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --no-cache-dir --upgrade \
         pip==26.2.1 setuptools==78.1.1 wheel==0.46.2 \
-    && pip install --no-cache-dir --requirement requirements-dev.lock
+    && pip install --no-cache-dir --requirement requirements-dev.lock \
+    && python -m pip uninstall --yes setuptools wheel
 COPY alembic.ini ./
 COPY migrations/ ./migrations/
 COPY backend/ ./backend/
