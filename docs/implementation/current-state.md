@@ -23,6 +23,8 @@ are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
 workspaces, and 1D parsers and canonical writers were owner-accepted on
 2026-08-15. Iterations 1E package publication and 1F publication failure
 handling were owner-accepted on 2026-08-15. Iteration 1G APIs are in progress.
+handling were owner-accepted on 2026-08-15. Iteration 1G APIs were
+owner-accepted on 2026-08-15. Iteration 1H daily UI is in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -99,10 +101,15 @@ remains pending until the Phase 1 acceptance suite passes.
   rollback, post-commit integrity, and reconciliation. Interrupted work leaves
   only non-downloadable temporary data, and reconciliation adopts or
   quarantines archive state safely.
+- Iteration 1G adds CSRF-protected daily-run creation/control APIs, run/event
+  and package metadata APIs, and authenticated verified ZIP downloads. The
+  APIs never expose filesystem paths or perform worker work. Migration
+  `0005_daily_run_trade_date` persists daily request dates and prevents
+  duplicate nonterminal requests for the same date.
 
 ## Not implemented
 
-- Iterations 1G through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1H through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -131,9 +138,10 @@ Playwright, dependency audits, and Trivy.
 - This Codex session cannot access the Docker daemon, but the user completed a
   clean host-terminal Compose run on 2026-08-15: migrations, all four
   PostgreSQL integration tests, app/worker health checks, and cleanup passed.
-- Migration `0004_package_publication` has only local SQL-rendering evidence in
-  this session; its PostgreSQL publication/reconciliation tests require the
-  next Compose or CI run for live-database evidence.
+- Migrations `0004_package_publication` and `0005_daily_run_trade_date` have
+  only local SQL-rendering evidence in this session; their PostgreSQL
+  publication/reconciliation and authenticated API tests require the next
+  Compose or CI run for live-database evidence.
 
 ## Planning alignment review
 
@@ -158,9 +166,9 @@ Resolved and recorded:
 
 ## Current database migration revision
 
-`0004_package_publication` (head). Users, authentication sessions, runs,
-append-only run events, package records, and package-file metadata exist; all
-other product tables remain unimplemented.
+`0005_daily_run_trade_date` (head). Users, authentication sessions, runs with
+daily request dates, append-only run events, package records, and package-file
+metadata exist; all other product tables remain unimplemented.
 
 ## Current output schema versions
 
@@ -224,7 +232,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1G only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1H only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 

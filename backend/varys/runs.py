@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from uuid import UUID, uuid4
 
@@ -58,6 +58,7 @@ class Run(Base):
     lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     requested_action: Mapped[str | None] = mapped_column(String(16))
+    trade_date: Mapped[date | None] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
@@ -133,7 +134,7 @@ def recover_expired_leases(database: Session) -> int:
     return count
 
 
-def create_run(database: Session, kind: str) -> Run:
+def create_run(database: Session, kind: str, trade_date: date | None = None) -> Run:
     normalized_kind = kind.strip()
     if not normalized_kind:
         raise ValueError("run kind is required")
@@ -145,6 +146,7 @@ def create_run(database: Session, kind: str) -> Run:
         lease_expires_at=None,
         heartbeat_at=None,
         requested_action=None,
+        trade_date=trade_date,
         created_at=now,
         updated_at=now,
     )
@@ -152,6 +154,19 @@ def create_run(database: Session, kind: str) -> Run:
     database.flush()
     _append_event(database, run, "CREATED", None, RunState.QUEUED)
     return run
+
+
+def create_daily_run(database: Session, trade_date: date) -> Run | None:
+    existing = database.scalar(
+        select(Run).where(
+            Run.kind == "daily",
+            Run.trade_date == trade_date,
+            Run.state.in_((RunState.QUEUED, *ACTIVE_RUN_STATES)),
+        )
+    )
+    if existing is not None:
+        return None
+    return create_run(database, "daily", trade_date)
 
 
 def request_action(database: Session, run: Run, action: RequestedAction) -> bool:

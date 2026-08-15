@@ -14,12 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1G in progress: daily run and package APIs.
+- Iteration 1H in progress: minimal daily UI.
 
 ## Out of scope
 
-- Iterations 1H through 1I: UI,
-  downloads, UI, and Phase 1 E2E acceptance.
+- Iteration 1I: Phase 1 E2E acceptance.
 
 ## Implementation evidence
 
@@ -42,12 +41,6 @@ Verified locally:
 - `make test-integration` — correctly skipped two PostgreSQL tests because
   `VARYS_TEST_DATABASE_URL` is not configured in this session.
 - `git diff --check`
-
-The owner accepted Iteration 1F on 2026-08-15. No Phase 1 acceptance status is
-claimed.
-
-The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
-claimed.
 
 The migration and integration proof require a clean PostgreSQL database; Docker
 and the configured PostgreSQL integration environment are unavailable in this
@@ -76,6 +69,9 @@ Verified locally:
 - `.venv/bin/alembic -c alembic.ini upgrade head --sql` — PostgreSQL migration
   SQL renders successfully without a live database.
 - `git diff --check`
+
+The owner accepted Iteration 1G on 2026-08-15. No Phase 1 acceptance status is
+claimed.
 
 The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
 claimed.
@@ -170,6 +166,55 @@ Verified locally:
   SQL renders successfully without a live database.
 - `git diff --check`
 
+The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
+Iteration 1F adds injected-failure coverage around generated workspace CSV
+writes, post-CSV verification, ZIP generation, the post-rename/pre-commit
+boundary, post-commit archive integrity, and startup reconciliation. Failed
+workspace writes leave only `.part` files; failed staging never becomes ready;
+a replacement package identity can rebuild safely; a database rollback after
+the final rename leaves the archive unavailable until reconciliation adopts it;
+and a corrupt committed archive is quarantined.
+
+Verified locally:
+
+- `make format`
+- `make check` — 37 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `make test-failure-injection` — 3 tests passed.
+- `make test-integration` — 6 PostgreSQL tests correctly skipped because
+  `VARYS_TEST_DATABASE_URL` is not configured in this session, including the
+  post-rename rollback, post-commit, and reconciliation failure matrix.
+- `git diff --check`
+
+The owner accepted Iteration 1F on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
+Iteration 1G adds migration `0005_daily_run_trade_date`, which persists the
+only accepted daily-run input and prevents duplicate nonterminal daily requests
+for the same date. Authenticated JSON APIs now create/read daily runs, list
+ordered events, and request valid controls. They expose package metadata without
+filesystem paths. Authenticated downloads derive only from a package UUID and
+verify ready state, server-side relative path, size, and SHA-256 before
+streaming. Cookie-authenticated mutations require the server-side CSRF token;
+the handlers only enqueue/control records and never execute worker work.
+
+Verified locally:
+
+- `make format`
+- `make check` — 37 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `make test-failure-injection` — 3 tests passed.
+- `make test-integration` — 7 PostgreSQL tests correctly skipped because
+  `VARYS_TEST_DATABASE_URL` is not configured in this session, including the
+  new authenticated HTTP run/package/download workflow.
+- `.venv/bin/alembic -c alembic.ini heads` — one head,
+  `0005_daily_run_trade_date`.
+- `.venv/bin/alembic -c alembic.ini upgrade head --sql` — PostgreSQL migration
+  SQL renders successfully without a live database.
+- `git diff --check`
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
@@ -214,10 +259,14 @@ or contract version. It advances only the Alembic migration head to
 Iteration 1F adds no dependency, toolchain, API, output-schema, parser-format,
 contract, or migration version.
 
+Iteration 1G adds no dependency, toolchain, output-schema, parser-format, or
+contract version. Its APIs are additive within the locked `/api/v1` and
+`/files` namespaces; it advances the Alembic head to `0005_daily_run_trade_date`.
+
 ## Next actions
 
-Implement Iteration 1G daily run and package APIs. Do not start a later Phase 1
-iteration in the same increment.
+Implement Iteration 1H minimal daily UI. Do not start a later Phase 1 iteration
+in the same increment.
 
 ## Owner approval
 

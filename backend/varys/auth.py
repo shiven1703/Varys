@@ -167,6 +167,20 @@ def revoke_session(
     return True
 
 
+def validate_csrf_token(
+    database: Session, session_token: str, csrf_token: str, session_secret: str
+) -> bool:
+    session = database.scalar(
+        select(AuthSession).where(
+            AuthSession.token_hash == _token_hash(session_token, session_secret),
+            AuthSession.revoked_at.is_(None),
+        )
+    )
+    return session is not None and session.csrf_token_hash == _token_hash(
+        csrf_token, session_secret
+    )
+
+
 def _token_hash(token: str, session_secret: str) -> str:
     return sha256(f"{session_secret}:{token}".encode()).hexdigest()
 

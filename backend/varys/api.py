@@ -6,13 +6,16 @@ import argparse
 import logging
 from collections.abc import Awaitable, Callable, Generator
 from contextlib import AbstractContextManager
+from datetime import UTC, date, datetime
 from mimetypes import guess_type
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
-from pydantic import BaseModel
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response, status
+from fastapi.responses import FileResponse
+from pydantic import BaseModel, ConfigDict
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from varys.auth import (
@@ -22,11 +25,21 @@ from varys.auth import (
     current_user,
     login,
     revoke_session,
+    validate_csrf_token,
 )
 from varys.config import Settings, load_settings
 from varys.db import check_database_readiness, create_session_factory
 from varys.logging import configure_logging, reset_request_id, set_request_id
-from varys.storage import check_storage_readiness
+from varys.packages import Package, PackageFile, PackageState
+from varys.runs import (
+    RequestedAction,
+    Run,
+    RunEvent,
+    create_daily_run,
+    request_action,
+    resume_paused_run,
+)
+from varys.storage import StoragePaths, check_storage_readiness, sha256_file
 
 _LOGGER = logging.getLogger("varys.api")
 
@@ -44,6 +57,48 @@ class UserResponse(BaseModel):
 class LoginResponse(BaseModel):
     user: UserResponse
     csrf_token: str
+
+
+class DailyRunRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    trade_date: date
+
+
+class RunResponse(BaseModel):
+    id: str
+    kind: str
+    trade_date: str | None
+    state: str
+    requested_action: str | None
+    created_at: str
+    updated_at: str
+
+
+class RunEventResponse(BaseModel):
+    sequence: int
+    event_type: str
+    from_state: str | None
+    to_state: str | None
+    created_at: str
+
+
+class PackageFileResponse(BaseModel):
+    name: str
+    sha256: str
+    size_bytes: int
+    row_count: int | None
+
+
+class PackageResponse(BaseModel):
+    id: str
+    run_id: str
+    kind: str
+    version: int
+    state: str
+    size_bytes: int | None
+    sha256: str | None
+    files: list[PackageFileResponse]
 
 
 def create_app(
@@ -95,6 +150,38 @@ def create_app(
         with factory.begin() as database:
             yield database
 
+    def authenticated_user(
+        request: Request, database: Session = Depends(database_session)
+    ) -> User:
+        session_token = request.cookies.get(SESSION_COOKIE_NAME)
+        if session_token is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        user = current_user(
+            database, session_token, _session_secret(application_settings)
+        )
+        if user is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return user
+
+    def csrf_protected(
+        request: Request,
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> None:
+        session_token = request.cookies.get(SESSION_COOKIE_NAME)
+        csrf_token = request.headers.get(CSRF_HEADER_NAME)
+        if (
+            session_token is None
+            or csrf_token is None
+            or not validate_csrf_token(
+                database,
+                session_token,
+                csrf_token,
+                _session_secret(application_settings),
+            )
+        ):
+            raise HTTPException(status_code=403, detail="CSRF validation failed")
+
     @app.post("/api/v1/auth/login", response_model=LoginResponse)
     async def login_endpoint(
         credentials: LoginRequest,
@@ -131,6 +218,110 @@ def create_app(
             if user is None:
                 raise HTTPException(status_code=401, detail="Authentication required")
             return _user_response(user)
+
+    @app.post(
+        "/api/v1/runs/daily",
+        response_model=RunResponse,
+        status_code=status.HTTP_202_ACCEPTED,
+    )
+    async def create_daily_run_endpoint(
+        payload: DailyRunRequest,
+        database: Session = Depends(database_session),
+        _user: User = Depends(csrf_protected),
+    ) -> RunResponse:
+        run = create_daily_run(database, payload.trade_date)
+        if run is None:
+            raise HTTPException(status_code=409, detail="RUN_ALREADY_EXISTS")
+        return _run_response(run)
+
+    @app.get("/api/v1/runs/{run_id}", response_model=RunResponse)
+    async def read_run_endpoint(
+        run_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> RunResponse:
+        return _run_response(_required_run(database, run_id))
+
+    @app.get("/api/v1/runs/{run_id}/events", response_model=list[RunEventResponse])
+    async def read_run_events_endpoint(
+        run_id: UUID,
+        offset: int = Query(default=0, ge=0),
+        limit: int = Query(default=100, ge=1, le=100),
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> list[RunEventResponse]:
+        _required_run(database, run_id)
+        events = database.scalars(
+            select(RunEvent)
+            .where(RunEvent.run_id == run_id)
+            .order_by(RunEvent.sequence)
+            .offset(offset)
+            .limit(limit)
+        )
+        return [_run_event_response(event) for event in events]
+
+    @app.post("/api/v1/runs/{run_id}/pause", response_model=RunResponse)
+    async def pause_run_endpoint(
+        run_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(csrf_protected),
+    ) -> RunResponse:
+        run = _required_run(database, run_id)
+        if not request_action(database, run, RequestedAction.PAUSE):
+            raise HTTPException(status_code=409, detail="RUN_CONTROL_NOT_ALLOWED")
+        return _run_response(run)
+
+    @app.post("/api/v1/runs/{run_id}/cancel", response_model=RunResponse)
+    async def cancel_run_endpoint(
+        run_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(csrf_protected),
+    ) -> RunResponse:
+        run = _required_run(database, run_id)
+        if not request_action(database, run, RequestedAction.CANCEL):
+            raise HTTPException(status_code=409, detail="RUN_CONTROL_NOT_ALLOWED")
+        return _run_response(run)
+
+    @app.post("/api/v1/runs/{run_id}/resume", response_model=RunResponse)
+    async def resume_run_endpoint(
+        run_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(csrf_protected),
+    ) -> RunResponse:
+        run = _required_run(database, run_id)
+        if not resume_paused_run(database, run):
+            raise HTTPException(status_code=409, detail="RUN_CONTROL_NOT_ALLOWED")
+        return _run_response(run)
+
+    @app.get("/api/v1/packages", response_model=list[PackageResponse])
+    async def list_packages_endpoint(
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> list[PackageResponse]:
+        packages = database.scalars(select(Package).order_by(Package.created_at.desc()))
+        return [_package_response(database, package) for package in packages]
+
+    @app.get("/api/v1/packages/{package_id}", response_model=PackageResponse)
+    async def read_package_endpoint(
+        package_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> PackageResponse:
+        return _package_response(database, _required_package(database, package_id))
+
+    @app.get("/files/packages/{package_id}")
+    async def download_package_endpoint(
+        package_id: UUID,
+        database: Session = Depends(database_session),
+        _user: User = Depends(authenticated_user),
+    ) -> FileResponse:
+        package = _required_package(database, package_id)
+        path = _verified_download_path(application_settings, package)
+        return FileResponse(
+            path,
+            media_type="application/zip",
+            filename=f"varys-{package.id}.zip",
+        )
 
     @app.post("/api/v1/auth/logout", status_code=204)
     async def logout_endpoint(
@@ -211,6 +402,90 @@ def _database_transaction(
 
 def _user_response(user: User) -> UserResponse:
     return UserResponse(id=str(user.id), username=user.username)
+
+
+def _run_response(run: Run) -> RunResponse:
+    return RunResponse(
+        id=str(run.id),
+        kind=run.kind,
+        trade_date=run.trade_date.isoformat() if run.trade_date else None,
+        state=run.state,
+        requested_action=run.requested_action,
+        created_at=_timestamp(run.created_at),
+        updated_at=_timestamp(run.updated_at),
+    )
+
+
+def _run_event_response(event: RunEvent) -> RunEventResponse:
+    return RunEventResponse(
+        sequence=event.sequence,
+        event_type=event.event_type,
+        from_state=event.from_state,
+        to_state=event.to_state,
+        created_at=_timestamp(event.created_at),
+    )
+
+
+def _package_response(database: Session, package: Package) -> PackageResponse:
+    files = database.scalars(
+        select(PackageFile)
+        .where(PackageFile.package_id == package.id)
+        .order_by(PackageFile.name)
+    )
+    return PackageResponse(
+        id=str(package.id),
+        run_id=str(package.run_id),
+        kind=package.kind,
+        version=package.version,
+        state=package.state,
+        size_bytes=package.size_bytes,
+        sha256=package.sha256,
+        files=[
+            PackageFileResponse(
+                name=file.name,
+                sha256=file.sha256,
+                size_bytes=file.size_bytes,
+                row_count=file.row_count,
+            )
+            for file in files
+        ],
+    )
+
+
+def _required_run(database: Session, run_id: UUID) -> Run:
+    run = database.get(Run, run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    return run
+
+
+def _required_package(database: Session, package_id: UUID) -> Package:
+    package = database.get(Package, package_id)
+    if package is None:
+        raise HTTPException(status_code=404, detail="Package not found")
+    return package
+
+
+def _verified_download_path(settings: Settings, package: Package) -> Path:
+    if package.state not in (PackageState.READY, PackageState.READY_WITH_WARNINGS):
+        raise HTTPException(status_code=404, detail="Package is not available")
+    if settings.data_root is None or package.relative_path is None:
+        raise HTTPException(status_code=404, detail="Package is not available")
+    paths = StoragePaths.from_root(settings.data_root)
+    expected_path = paths.ready_package(package.kind, str(package.id))
+    if package.relative_path != str(expected_path.relative_to(paths.root)):
+        raise HTTPException(status_code=404, detail="Package is not available")
+    if (
+        not expected_path.is_file()
+        or package.size_bytes != expected_path.stat().st_size
+        or package.sha256 != sha256_file(expected_path)
+    ):
+        raise HTTPException(status_code=404, detail="Package is not available")
+    return expected_path
+
+
+def _timestamp(value: datetime) -> str:
+    return value.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 if __name__ == "__main__":

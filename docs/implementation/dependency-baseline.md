@@ -83,6 +83,11 @@ Iteration 1F uses only the Python standard library and existing pinned
 dependencies. No dependency, toolchain, API, output-schema, parser-format,
 contract, or migration version changes are required.
 
+Iteration 1G uses only existing pinned dependencies. No dependency, toolchain,
+output-schema, parser-format, or contract version changes are required. It
+adds endpoints within the locked `/api/v1` and `/files` namespaces and advances
+the Alembic migration head to `0005_daily_run_trade_date`.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The
