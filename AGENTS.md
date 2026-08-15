@@ -12,6 +12,12 @@ Read before editing, in this order:
 8. Relevant ADRs under `docs/architecture/decisions/`
 9. `docs/implementation/risk-register.md` and
    `docs/implementation/dependency-baseline.md` when they exist
+10. `docs/ai/START_HERE.md`, `docs/ai/AGENT_WORKFLOW.md`, and
+    `docs/implementation/definition-of-done.md`
+
+Use the AI workflow documents as navigation and process guides; keep product
+and architecture rules in their authoritative documents rather than duplicating
+them in agent instructions.
 
 Before editing, inspect the Git branch, status, recent commits, and run the
 smallest relevant baseline check.

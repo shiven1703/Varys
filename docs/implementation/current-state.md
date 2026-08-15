@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0J
+Phase 0: `IN_PROGRESS` — acceptance evidence pending
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -24,7 +24,6 @@ is not itself approved.
 
 ## Implemented capabilities
 
-- No application capabilities are implemented.
 - The Ubuntu development host and repository governance baseline are prepared.
 - Pre-Phase acceptance passed on 2026-08-15.
 - Docker Engine, Buildx, Compose, Codex, Git, and required host CLI tools are
@@ -52,6 +51,11 @@ is not itself approved.
   normal Python tests prohibit network access. Angular lint/unit/build,
   Playwright shell smoke, Docker Compose smoke, dependency scans, image scans,
   and main-only GitHub Actions jobs are implemented.
+- Public-repository audit found no high-confidence secret in tracked content or
+  reachable Git history; a full-history Gitleaks CI job now guards future
+  pushes.
+- Phase 1 handover is prepared but explicitly blocked until Phase 0 is
+  acceptance-complete and owner-approved.
 
 ## Not implemented
 
@@ -161,6 +165,6 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Begin Iteration 0J Codex workflow and repository-state documentation. Docker
-daemon validation for Iterations 0E/0H/0I and remote GitHub Actions execution
-remain required before Phase 0 acceptance. Do not start Phase 1 work.
+Run the outstanding Phase 0 Docker, browser, scanner, clean-PostgreSQL, and
+remote-CI acceptance checks. Do not start Phase 1 work until the owner approves
+Phase 0.

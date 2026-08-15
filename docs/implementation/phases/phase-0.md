@@ -47,7 +47,7 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0G: COMPLETED
 - Iteration 0H: COMPLETED
 - Iteration 0I: COMPLETED
-- Iteration 0J: IN_PROGRESS
+- Iteration 0J: COMPLETED
 
 ## Acceptance criteria
 
@@ -169,6 +169,18 @@ The owner accepted Iteration 0I on 2026-08-15. This acceptance does not approve
 Phase 0. Docker, browser, scanner, clean-PostgreSQL integration, and remote CI
 evidence remain required before Phase 0 acceptance.
 
+Iteration 0J added the AI session entrypoint and workflow documents, a factual
+risk register, a definition-of-done ledger, and a deterministic documentation
+presence check. The repository remains in `IN_PROGRESS`: the missing Docker,
+browser, scanner, clean-PostgreSQL, and remote-CI acceptance evidence is not
+represented as passed.
+
+The owner accepted Iteration 0J on 2026-08-15. This acceptance does not approve
+Phase 0. A tracked-file and reachable-history public-repository audit found no
+high-confidence credentials or private keys; Gitleaks now scans full history in
+CI. Phase 0 remains `IN_PROGRESS` until its Docker, browser, scanner,
+clean-PostgreSQL, and remote-CI acceptance evidence is complete.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -202,8 +214,8 @@ evidence remain required before Phase 0 acceptance.
 
 ## Next actions
 
-- Complete Iteration 0I deterministic test and CI foundations. The pending 0E
-  PostgreSQL integration evidence remains required before Phase 0 acceptance.
+- Run the outstanding Phase 0 Docker, browser, scanner, clean-PostgreSQL, and
+  remote-CI acceptance checks. Do not begin Phase 1 until owner approval.
 
 ## Owner approval
 
