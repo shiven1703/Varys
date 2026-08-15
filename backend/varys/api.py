@@ -65,9 +65,10 @@ def create_app(
             if path.startswith(("api/", "files/")):
                 raise HTTPException(status_code=404, detail="Not found")
             requested_file = (frontend_directory / path).resolve()
-            is_bundle_file = requested_file.is_relative_to(
-                frontend_directory.resolve()
-            ) and requested_file.is_file()
+            is_bundle_file = (
+                requested_file.is_relative_to(frontend_directory.resolve())
+                and requested_file.is_file()
+            )
             if is_bundle_file:
                 return _static_response(requested_file)
             return _static_response(frontend_directory / "index.html")

@@ -1,6 +1,6 @@
 # Dependency Baseline
 
-Status: Phase 0 Iteration 0C. Update this document with each dependency or
+Status: Phase 0 Iteration 0I. Update this document with each dependency or
 toolchain change.
 
 ## Host prerequisites
@@ -45,7 +45,10 @@ Transitive pins are retained in `requirements-dev.lock`.
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The
-direct Phase 0G pins are Angular `21.2.20`, Angular CLI/build `21.2.21`,
+direct Phase 0G/0I pins are Angular `21.2.20`, Angular CLI/build `21.2.21`,
 TypeScript `5.9.3`, PrimeNG `21.1.9`, AG Grid Community `35.3.1`, Vitest
-`4.1.10`, and jsdom `29.1.1`. Angular 21 is selected because it supports the
-available Node 24.0 host; Angular 22 requires Node 24.15 or later.
+`4.1.10`, jsdom `29.1.1`, Playwright `1.52.0`, ESLint `9.24.0`, and
+typescript-eslint `8.48.0`. Angular 21 is selected because it supports the
+available Node 24.0 host; Angular 22 requires Node 24.15 or later. CI installs
+the separate pinned `pip-audit==2.9.0` scanner rather than making it an
+application dependency.

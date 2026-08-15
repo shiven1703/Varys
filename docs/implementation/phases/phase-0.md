@@ -46,8 +46,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0F: COMPLETED
 - Iteration 0G: COMPLETED
 - Iteration 0H: COMPLETED
-- Iteration 0I: IN_PROGRESS
-- Iteration 0J: NOT_STARTED
+- Iteration 0I: COMPLETED
+- Iteration 0J: IN_PROGRESS
 
 ## Acceptance criteria
 
@@ -153,6 +153,22 @@ The owner accepted Iteration 0H on 2026-08-15. This acceptance does not approve
 Phase 0. Docker build/up/smoke evidence and the pending clean-PostgreSQL
 integration evidence remain required before Phase 0 acceptance.
 
+Iteration 0I implementation added executable pytest golden and
+failure-injection layers, an autouse normal-test network prohibition with a
+proving unit test, frontend ESLint, a Playwright app-shell smoke skeleton, and
+main-only GitHub Actions jobs for Python, frontend, E2E, Compose smoke,
+dependency, and image scanning. `make format`, `make check` (18 unit tests),
+`make test-golden`, and `make test-failure-injection` passed. The PostgreSQL
+integration test correctly skipped without `VARYS_TEST_DATABASE_URL`; frontend
+lint, production build, unit test, and Playwright test discovery passed.
+`docker compose config --quiet` and the production npm audit passed. Docker
+execution, Playwright browser execution, pip-audit, Trivy, and remote GitHub
+Actions evidence remain pending their Docker/CI environments.
+
+The owner accepted Iteration 0I on 2026-08-15. This acceptance does not approve
+Phase 0. Docker, browser, scanner, clean-PostgreSQL integration, and remote CI
+evidence remain required before Phase 0 acceptance.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -186,7 +202,7 @@ integration evidence remain required before Phase 0 acceptance.
 
 ## Next actions
 
-- Begin Iteration 0H shared Docker image and Compose topology. The pending 0E
+- Complete Iteration 0I deterministic test and CI foundations. The pending 0E
   PostgreSQL integration evidence remains required before Phase 0 acceptance.
 
 ## Owner approval

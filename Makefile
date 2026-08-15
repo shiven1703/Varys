@@ -7,7 +7,7 @@ VENV_PYTEST := $(VENV)/bin/pytest
 BACKEND_PYTHONPATH := PYTHONPATH=backend
 
 .DEFAULT_GOAL := check
-.PHONY: bootstrap format lint typecheck test test-unit test-integration test-golden test-e2e build compose-up compose-down compose-smoke check
+.PHONY: bootstrap format lint typecheck test test-unit test-integration test-golden test-failure-injection test-e2e build compose-up compose-down compose-smoke check
 
 bootstrap:
 	$(PYTHON) -m venv $(VENV)
@@ -32,10 +32,13 @@ test-integration:
 	$(BACKEND_PYTHONPATH) $(VENV_PYTEST) -m integration backend/tests/integration
 
 test-golden:
-	@echo "Golden tests are introduced in Iteration 0I."
+	$(BACKEND_PYTHONPATH) $(VENV_PYTEST) backend/tests/golden
+
+test-failure-injection:
+	$(BACKEND_PYTHONPATH) $(VENV_PYTEST) backend/tests/failure_injection
 
 test-e2e:
-	@echo "Browser E2E tests are introduced in Iteration 0I."
+	npm --prefix frontend run test:e2e
 
 build:
 	docker compose build

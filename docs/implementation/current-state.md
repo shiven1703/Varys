@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0I
+Phase 0: `IN_PROGRESS` — Iteration 0J
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -48,15 +48,19 @@ is not itself approved.
 - A multi-stage application image, FastAPI-served Angular bundle, shared
   app/worker image, local Compose topology, and Compose smoke workflow are
   implemented.
+- Pytest unit, integration, golden, and failure-injection layers now exist;
+  normal Python tests prohibit network access. Angular lint/unit/build,
+  Playwright shell smoke, Docker Compose smoke, dependency scans, image scans,
+  and main-only GitHub Actions jobs are implemented.
 
 ## Not implemented
 
 - All Phase 0 through Phase 7 application work.
-- Product tests and CI.
+- Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
 
-No known failing tests. The 0E unit suite passes 12 tests; the PostgreSQL
+No known failing tests. The unit suite passes 18 tests; the PostgreSQL
 integration test is skipped until `VARYS_TEST_DATABASE_URL` is supplied.
 
 ## Known limitations
@@ -136,15 +140,16 @@ Nginx, or separate scheduler is part of V1.
 ## Current developer commands
 
 `make bootstrap`, `make format`, `make lint`, `make typecheck`, `make test`,
-`make test-unit`, `make check`, `make build`, `make compose-up`,
-`make compose-down`, and `make compose-smoke` are implemented. Golden and E2E
-targets identify the later iteration that owns them.
+`make test-unit`, `make test-golden`, `make test-failure-injection`,
+`make test-e2e`, `make check`, `make build`, `make compose-up`,
+`make compose-down`, and `make compose-smoke` are implemented.
 
 `make test-integration` now runs PostgreSQL-only tests and requires
 `VARYS_TEST_DATABASE_URL`; it skips when that environment variable is absent.
 
 The frontend commands are `npm --prefix frontend ci`, `npm --prefix frontend run
-build`, and `npm --prefix frontend test -- --watch=false`.
+lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
+--watch=false`, and `npm --prefix frontend run test:e2e`.
 
 ## Decisions due before later phases
 
@@ -156,6 +161,6 @@ build`, and `npm --prefix frontend test -- --watch=false`.
 
 ## Next allowed implementation work
 
-Begin Iteration 0I deterministic test and CI foundations. Docker daemon
-validation for Iteration 0H and the pending 0E PostgreSQL integration evidence
+Begin Iteration 0J Codex workflow and repository-state documentation. Docker
+daemon validation for Iterations 0E/0H/0I and remote GitHub Actions execution
 remain required before Phase 0 acceptance. Do not start Phase 1 work.

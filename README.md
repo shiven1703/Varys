@@ -15,11 +15,14 @@ make lint
 make typecheck
 make test
 make test-unit
+make test-golden
+make test-failure-injection
+make test-e2e
 make check
 ```
 
-The remaining stable targets are intentionally placeholders until their owning
-Phase 0 iteration: `test-golden` and `test-e2e` (0I).
+All listed Phase 0 developer commands are implemented. Docker-backed commands
+require a Docker daemon and a local `.env` copied from `.env.example`.
 
 ## Frontend commands
 
@@ -42,6 +45,13 @@ run `make build` and `make compose-up`. The app is available only on
 builds, verifies, and removes the local Compose topology. Cloudflare Tunnel is
 optional and disabled unless the `cloudflared` profile is selected with
 `CLOUDFLARE_TUNNEL_TOKEN` set.
+
+## CI checks
+
+Pushes to `main` run Python format/lint/type/unit/golden/failure tests,
+frontend lint/unit/build, Docker Compose smoke, the Playwright shell smoke,
+dependency scans, and a Trivy image scan. Tests prohibit uncontrolled network
+access; fixture or PostgreSQL integration tests are the explicit exceptions.
 
 See `docs/implementation/implementation-plan.md` for the phase plan and
 `docs/implementation/current-state.md` for the implementation ledger.

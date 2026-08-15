@@ -10,6 +10,8 @@ htmlcov/
 node_modules/
 dist/
 .angular/
+playwright-report/
+test-results/
 .env
 .env.*
 !.env.example
