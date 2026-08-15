@@ -21,7 +21,8 @@ was clean when Phase 0 began.
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
 are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
 workspaces, and 1D parsers and canonical writers were owner-accepted on
-2026-08-15. Iteration 1E package publication is in progress.
+2026-08-15. Iteration 1E package publication was owner-accepted on 2026-08-15.
+Iteration 1F publication failure handling is in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -87,10 +88,16 @@ remains pending until the Phase 1 acceptance suite passes.
   common locked-schema CSV writer with Decimal-safe serialization, `EQ`
   filtering, deterministic ordering, duplicate-key rejection, and byte-level
   golden coverage for canonical equity, index, and universe CSVs.
+- Iteration 1E adds recoverable package publication: manifest and preparation
+  report generation, deterministic `.zip.part` staging, full archive/member
+  verification, atomic immutable ready publication, package/file metadata, and
+  worker-startup archive reconciliation. Migration `0004_package_publication`
+  introduces PostgreSQL package readiness metadata, which is written only once
+  the final archive exists.
 
 ## Not implemented
 
-- Iterations 1E through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1F through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -143,8 +150,9 @@ Resolved and recorded:
 
 ## Current database migration revision
 
-`0003_run_dispatch` (head). Users, authentication sessions, runs, and
-append-only run events exist; all other product tables remain unimplemented.
+`0004_package_publication` (head). Users, authentication sessions, runs,
+append-only run events, package records, and package-file metadata exist; all
+other product tables remain unimplemented.
 
 ## Current output schema versions
 
@@ -208,7 +216,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1E only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1F only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 

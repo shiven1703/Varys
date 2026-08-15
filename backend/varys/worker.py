@@ -11,7 +11,9 @@ from types import FrameType
 from varys.config import load_settings
 from varys.db import create_session_factory
 from varys.logging import configure_logging
+from varys.packages import reconcile_packages
 from varys.runs import claim_next_run, recover_expired_leases
+from varys.storage import StoragePaths
 
 _LOGGER = logging.getLogger("varys.worker")
 
@@ -26,6 +28,11 @@ def main() -> int:
         factory = create_session_factory(settings.database_url)
         with factory.begin() as database:
             recovered = recover_expired_leases(database)
+            reconciliation = (
+                reconcile_packages(database, StoragePaths.from_root(settings.data_root))
+                if settings.data_root is not None
+                else None
+            )
             claimed = claim_next_run(database, settings.worker_id)
         _LOGGER.info(
             "worker dispatch reconciliation complete",
@@ -33,6 +40,13 @@ def main() -> int:
                 "service": "worker",
                 "recovered_runs": recovered,
                 "claimed_run_id": str(claimed.id) if claimed else None,
+                "adopted_packages": reconciliation.adopted if reconciliation else 0,
+                "quarantined_packages": reconciliation.quarantined
+                if reconciliation
+                else 0,
+                "staged_package_parts": reconciliation.staged_parts
+                if reconciliation
+                else 0,
             },
         )
     _LOGGER.info(

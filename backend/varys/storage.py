@@ -144,9 +144,16 @@ def sha256_file(path: Path) -> str:
 
 def write_durable_bytes(destination: Path, content: bytes) -> Path:
     part_path = destination.with_name(f"{destination.name}.part")
-    if part_path.exists() or destination.exists():
+    if destination.exists():
         raise FileExistsError("destination or durable part file already exists")
+    return write_durable_part(part_path, content)
 
+
+def write_durable_part(part_path: Path, content: bytes) -> Path:
+    if part_path.suffix != ".part":
+        raise ValueError("durable temporary output must use a .part suffix")
+    if part_path.exists():
+        raise FileExistsError("durable part file already exists")
     with part_path.open("xb") as file_handle:
         file_handle.write(content)
         file_handle.flush()

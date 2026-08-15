@@ -14,11 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1E in progress: manifest, preparation report, and package publication.
+- Iteration 1F in progress: publication failure matrix and recovery safeguards.
 
 ## Out of scope
 
-- Iterations 1F through 1I: publication failure handling, APIs,
+- Iterations 1G through 1I: APIs,
   downloads, UI, and Phase 1 E2E acceptance.
 
 ## Implementation evidence
@@ -42,6 +42,9 @@ Verified locally:
 - `make test-integration` — correctly skipped two PostgreSQL tests because
   `VARYS_TEST_DATABASE_URL` is not configured in this session.
 - `git diff --check`
+
+The owner accepted Iteration 1E on 2026-08-15. No Phase 1 acceptance status is
+claimed.
 
 The migration and integration proof require a clean PostgreSQL database; Docker
 and the configured PostgreSQL integration environment are unavailable in this
@@ -117,6 +120,31 @@ Verified locally:
 The owner accepted Iteration 1D on 2026-08-15. No Phase 1 acceptance status is
 claimed.
 
+Iteration 1E adds migration `0004_package_publication`, package/file metadata,
+and a deterministic ZIP publication path. It generates manifest and
+preparation-report members from validated metadata, writes exactly one
+`.zip.part` staging file, reopens and verifies every ZIP member, atomically
+renames only verified archives to the immutable ready root, and records ready
+metadata only afterward in the caller's PostgreSQL transaction. Canonical CSV
+members are rechecked for approved headers, row counts, and duplicate business
+keys. Worker startup reconciles complete post-rename BUILDING archives and
+quarantines missing, corrupt, or metadata-inconsistent ready records.
+
+Verified locally:
+
+- `make format`
+- `make check` — 37 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `make test-failure-injection` — 1 test passed.
+- `make test-integration` — 5 PostgreSQL tests correctly skipped because
+  `VARYS_TEST_DATABASE_URL` is not configured in this session, including the
+  new publication/reconciliation test.
+- `.venv/bin/alembic -c alembic.ini heads` — one head,
+  `0004_package_publication`.
+- `.venv/bin/alembic -c alembic.ini upgrade head --sql` — PostgreSQL migration
+  SQL renders successfully without a live database.
+- `git diff --check`
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
@@ -154,10 +182,14 @@ Iteration 1D adds no dependency, toolchain, API, output-schema, parser-format,
 or contract version. It implements the existing locked CSV and source-adapter
 contracts with fixture-only parsers and writers.
 
+Iteration 1E adds no dependency, toolchain, API, output-schema, parser-format,
+or contract version. It advances only the Alembic migration head to
+`0004_package_publication`.
+
 ## Next actions
 
-Implement Iteration 1E manifest, preparation report, and package publication.
-Do not start a later Phase 1 iteration in the same increment.
+Implement Iteration 1F publication failure-matrix coverage. Do not start a
+later Phase 1 iteration in the same increment.
 
 ## Owner approval
 
