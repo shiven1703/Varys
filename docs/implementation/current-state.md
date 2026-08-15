@@ -85,9 +85,12 @@ remains pending until the Phase 1 acceptance suite passes.
 
 ## Known failing tests
 
-No known failing tests. The owner reported that all required GitHub Actions CI
-checks passed on 2026-08-15, including Compose smoke, Playwright, dependency
-audits, and Trivy.
+The latest GitHub Actions Compose smoke job stopped before tests because its
+environment supplied `VARYS_POSTGRES_PASSWORD` but omitted the required
+`VARYS_SESSION_SECRET`. The workflow now supplies an isolated CI-only session
+value; a rerun is required to confirm the fix. The prior required CI suite
+passed on 2026-08-15, including Compose smoke, Playwright, dependency audits,
+and Trivy.
 
 ## Known limitations
 
