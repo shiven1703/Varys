@@ -191,6 +191,11 @@ unit tests; golden and failure tests, frontend lint/build/unit tests, Playwright
 discovery, `pip-audit`, Compose configuration, and shell syntax passed. Docker
 runtime and remote CI validation remain pending.
 
+A follow-up remote `make check` failure showed that Compose-only `VARYS_`
+variables had been exported to every CI step. Those variables now apply only to
+the Compose smoke step; local `make check` again passes 19 unit tests while the
+strict unknown-setting guard remains unchanged.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A

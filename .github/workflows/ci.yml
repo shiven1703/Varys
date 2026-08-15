@@ -11,9 +11,6 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    env:
-      VARYS_POSTGRES_PASSWORD: ci-only-password
-      VARYS_RUN_E2E: '1'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,6 +39,9 @@ jobs:
       - run: npm --prefix frontend test -- --watch=false
       - run: npx --prefix frontend playwright install --with-deps chromium
       - run: make compose-smoke
+        env:
+          VARYS_POSTGRES_PASSWORD: ci-only-password
+          VARYS_RUN_E2E: '1'
       - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: varys:local
