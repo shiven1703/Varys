@@ -42,8 +42,8 @@ for the Phase 1 fixture-based vertical slice.
 - Iteration 0B: COMPLETED
 - Iteration 0C: COMPLETED
 - Iteration 0D: COMPLETED
-- Iteration 0E: IN_PROGRESS
-- Iteration 0F: NOT_STARTED
+- Iteration 0E: COMPLETED
+- Iteration 0F: IN_PROGRESS
 - Iteration 0G: NOT_STARTED
 - Iteration 0H: NOT_STARTED
 - Iteration 0I: NOT_STARTED
@@ -105,6 +105,18 @@ The owner accepted Iteration 0D on 2026-08-15. This acceptance does not approve
 Phase 0; the phase remains `IN_PROGRESS` until its complete acceptance suite
 passes and the owner explicitly approves the phase.
 
+Iteration 0E is implemented but not yet acceptance-complete. SQLAlchemy uses
+PostgreSQL-only URLs; Alembic head is `0001_database_foundation` with no
+speculative tables; readiness rejects missing, unreachable, and revision-skewed
+databases. `make check` passed 10 unit tests, Ruff, and mypy. The PostgreSQL
+integration harness skips without `VARYS_TEST_DATABASE_URL`, so clean-database
+migration and live readiness evidence remain pending the approved Docker/test
+database access. The expanded unit suite passes 12 tests.
+
+The owner accepted Iteration 0E on 2026-08-15. This acceptance does not approve
+Phase 0. The pending clean-PostgreSQL integration evidence remains recorded and
+must be completed before Phase 0 acceptance.
+
 ## Deviations from plan
 
 - The owner selected `main` as the default through the first V1 release. A
@@ -114,7 +126,8 @@ passes and the owner explicitly approves the phase.
 
 ## Known limitations
 
-- The bootstrap has no database, storage, scheduler, or production runtime yet.
+- PostgreSQL integration execution is pending an available test database.
+- The bootstrap has no storage, scheduler, or production runtime yet.
 - The three higher-authority planning inputs are now materialized as the
   versioned Iteration 0A contracts.
 
@@ -137,7 +150,8 @@ passes and the owner explicitly approves the phase.
 
 ## Next actions
 
-- Begin Iteration 0E PostgreSQL and Alembic foundations.
+- Complete Iteration 0F filesystem safety primitives. The pending 0E PostgreSQL
+  integration evidence remains required before Phase 0 acceptance.
 
 ## Owner approval
 

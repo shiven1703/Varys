@@ -8,9 +8,10 @@ from collections.abc import Awaitable, Callable
 from uuid import uuid4
 
 import uvicorn
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 
 from varys.config import Settings, load_settings
+from varys.db import check_database_readiness
 from varys.logging import configure_logging, reset_request_id, set_request_id
 
 _LOGGER = logging.getLogger("varys.api")
@@ -40,6 +41,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/health/live")
     @app.get("/api/v1/health/live")
     async def live() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.get("/api/health/ready")
+    async def ready() -> dict[str, str]:
+        readiness = check_database_readiness(application_settings.database_url)
+        if not readiness.ready:
+            raise HTTPException(status_code=503, detail=readiness.reason)
         return {"status": "ok"}
 
     app.state.settings = application_settings

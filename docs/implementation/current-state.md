@@ -16,7 +16,7 @@ was clean when Phase 0 began.
 
 ## Current phase and status
 
-Phase 0: `IN_PROGRESS` — Iteration 0E
+Phase 0: `IN_PROGRESS` — Iteration 0F
 Implementation plan revision: 3
 
 Pre-Phase is approved. Phase 0 is authorized to start in a new Codex chat but
@@ -36,15 +36,19 @@ is not itself approved.
 - The FastAPI and dedicated worker boot independently from shared Python code;
   validated startup configuration, structured JSON logging, request IDs, and
   the liveness endpoint are implemented.
+- PostgreSQL-only SQLAlchemy sessions, Alembic configuration, migration head
+  `0001_database_foundation`, database readiness checks, and an integration
+  test harness are implemented.
 
 ## Not implemented
 
 - All Phase 0 through Phase 7 application work.
-- Database migrations, runtime images, Compose topology, product tests, and CI.
+- Runtime images, Compose topology, product tests, and CI.
 
 ## Known failing tests
 
-No known failing tests. The Iteration 0D bootstrap suite passes 7 unit tests.
+No known failing tests. The 0E unit suite passes 12 tests; the PostgreSQL
+integration test is skipped until `VARYS_TEST_DATABASE_URL` is supplied.
 
 ## Known limitations
 
@@ -87,7 +91,7 @@ Resolved and recorded:
 
 ## Current database migration revision
 
-Not applicable; Alembic is not initialized.
+`0001_database_foundation` (head). No product tables exist yet.
 
 ## Current output schema versions
 
@@ -119,8 +123,11 @@ Nginx, or separate scheduler is part of V1.
 ## Current developer commands
 
 `make bootstrap`, `make format`, `make lint`, `make typecheck`, `make test`,
-`make test-unit`, and `make check` are implemented. Integration, golden, E2E,
-build, and Compose targets identify the later iteration that owns them.
+`make test-unit`, and `make check` are implemented. Golden, E2E, build, and
+Compose targets identify the later iteration that owns them.
+
+`make test-integration` now runs PostgreSQL-only tests and requires
+`VARYS_TEST_DATABASE_URL`; it skips when that environment variable is absent.
 
 ## Decisions due before later phases
 
@@ -132,5 +139,5 @@ build, and Compose targets identify the later iteration that owns them.
 
 ## Next allowed implementation work
 
-Begin Iteration 0E PostgreSQL and Alembic foundations. Do not start Phase 1
-work.
+Provide PostgreSQL integration evidence for Iteration 0E before moving to
+Iteration 0F. Do not start Phase 1 work.

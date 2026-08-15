@@ -29,7 +29,7 @@ test-unit:
 	$(BACKEND_PYTHONPATH) $(VENV_PYTEST) backend/tests/unit
 
 test-integration:
-	@echo "Integration tests are introduced in Iteration 0E."
+	$(BACKEND_PYTHONPATH) $(VENV_PYTEST) -m integration backend/tests/integration
 
 test-golden:
 	@echo "Golden tests are introduced in Iteration 0I."
