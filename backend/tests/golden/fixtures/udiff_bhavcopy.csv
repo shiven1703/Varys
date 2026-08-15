@@ -1,0 +1,2 @@
+TradDt,BizDt,Sgmt,Src,FinInstrmTp,FinInstrmId,ISIN,TckrSymb,SctySrs,XpryDt,FininstrmActlXpryDt,StrkPric,OptnTp,FinInstrmNm,OpnPric,HghPric,LwPric,ClsPric,LastPric,PrvsClsgPric,UndrlygPric,SttlmPric,OpnIntrst,ChngInOpnIntrst,TtlTradgVol,TtlTrfVal,TtlNbOfTxs,FinInstrmDelivQty,FinInstrmDelivPct
+2026-08-14,2026-08-14,CM,FINAL,ST,INE000A01010,INE000A01010,ACME,EQ,,,,,Acme Limited,101.2500,103,99.50,102.5,102,100,,,,,2000,205000.00,42,,

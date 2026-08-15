@@ -70,6 +70,10 @@ Iteration 1C uses only the Python standard library and existing pinned
 dependencies. No dependency, toolchain, API, output-schema, parser-format, or
 contract version changes are required.
 
+Iteration 1D uses only the Python standard library and existing pinned
+dependencies. No dependency, toolchain, API, output-schema, parser-format, or
+contract version changes are required.
+
 ## Frontend dependencies
 
 `frontend/package-lock.json` records the complete npm dependency graph. The

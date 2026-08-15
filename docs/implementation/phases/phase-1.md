@@ -14,11 +14,11 @@ of `docs/implementation/implementation-plan.md`, starting with Iteration 1A.
 
 ## Scope
 
-- Iteration 1D in progress: parsers and canonical writers.
+- Iteration 1E in progress: manifest, preparation report, and package publication.
 
 ## Out of scope
 
-- Iterations 1E through 1I: package publication,
+- Iterations 1F through 1I: publication failure handling, APIs,
   downloads, UI, and Phase 1 E2E acceptance.
 
 ## Implementation evidence
@@ -97,6 +97,26 @@ Verified locally:
 The owner accepted Iteration 1C on 2026-08-15. No Phase 1 acceptance status is
 claimed.
 
+Iteration 1D adds reviewed fixture parsers for legacy and UDiFF Capital Market
+bhavcopies, Nifty index reports, and the Nifty 500 universe. Parser selection
+for bhavcopies uses the actual, exact raw header; all raw schemas are guarded
+and unknown or malformed inputs fail before canonical output. Only `EQ` rows
+reach equity/universe output. The common canonical writer validates the locked
+schema, Decimal/count/date types, required/optional cells, sorting, duplicate
+business keys, UTF-8/LF encoding, and the literal-`NA` distinction. Golden
+fixtures prove byte-identical equity, index, and universe output on repeated
+runs.
+
+Verified locally:
+
+- `make format`
+- `make check` — 34 unit tests passed; Ruff and mypy passed.
+- `make test-golden` — 2 golden tests passed.
+- `git diff --check`
+
+The owner accepted Iteration 1D on 2026-08-15. No Phase 1 acceptance status is
+claimed.
+
 ## Acceptance evidence
 
 Phase 0 completed its required GitHub Actions CI suite and was explicitly
@@ -130,10 +150,14 @@ Iteration 1C adds no dependency, toolchain, API, output-schema, parser, or
 contract version; it implements the locked source-adapter and filesystem
 contracts with fixture-only Python code.
 
+Iteration 1D adds no dependency, toolchain, API, output-schema, parser-format,
+or contract version. It implements the existing locked CSV and source-adapter
+contracts with fixture-only parsers and writers.
+
 ## Next actions
 
-Implement Iteration 1D parsers and canonical writers. Do not start a later
-Phase 1 iteration in the same increment.
+Implement Iteration 1E manifest, preparation report, and package publication.
+Do not start a later Phase 1 iteration in the same increment.
 
 ## Owner approval
 

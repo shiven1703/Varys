@@ -1,0 +1,3 @@
+trade_date,index_code,index_name,open,high,low,close,volume_or_shares_traded_if_available,turnover_if_available,source_report,source_format_version
+2026-08-14,NIFTY 50,NIFTY 50,24500,24600,24400,24550,NA,NA,nifty-indices-2026-08-14.csv,nifty-indices-report-v1
+2026-08-14,NIFTY 500,NIFTY 500,200,205,198,204,5000,100000,nifty-indices-2026-08-14.csv,nifty-indices-report-v1

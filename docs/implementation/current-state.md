@@ -19,9 +19,9 @@ was clean when Phase 0 began.
 ## Current phase and status
 
 Phase 1: `IN_PROGRESS` — Phase 0 and the Iteration 1A authentication increment
-are owner-accepted; Iterations 1B run dispatch and 1C fixture adapters and
-workspaces were owner-accepted on 2026-08-15. Iteration 1D parsers and
-canonical writers are in progress.
+are owner-accepted; Iterations 1B run dispatch, 1C fixture adapters and
+workspaces, and 1D parsers and canonical writers were owner-accepted on
+2026-08-15. Iteration 1E package publication is in progress.
 Implementation plan revision: 3
 
 Phase 1 continues through owner-accepted scoped increments. Its owner approval
@@ -82,10 +82,15 @@ remains pending until the Phase 1 acceptance suite passes.
   and index-report adapters behind the common discovery/download/classify/verify
   contract. It records verified fixture metadata without mutating bytes and
   creates one isolated, safe `/data/work/<run-id>/` directory per run.
+- Iteration 1D adds strict fixture parsers for legacy and UDiFF Capital Market
+  bhavcopies, Nifty index reports, and Nifty 500 universe reports. It has a
+  common locked-schema CSV writer with Decimal-safe serialization, `EQ`
+  filtering, deterministic ordering, duplicate-key rejection, and byte-level
+  golden coverage for canonical equity, index, and universe CSVs.
 
 ## Not implemented
 
-- Iterations 1D through 1I and all Phase 2 through Phase 7 work.
+- Iterations 1E through 1I and all Phase 2 through Phase 7 work.
 - Product workflows beyond the Phase 0 test baseline.
 
 ## Known failing tests
@@ -203,7 +208,7 @@ lint`, `npm --prefix frontend run build`, `npm --prefix frontend test --
 
 ## Next allowed implementation work
 
-Start Phase 1 Iteration 1D only. Review affected contract, schema, toolchain,
+Start Phase 1 Iteration 1E only. Review affected contract, schema, toolchain,
 and dependency versions in every increment; update their versioned records
 whenever a change is made.
 

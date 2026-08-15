@@ -1,0 +1,2 @@
+trade_date,exchange,symbol,series,isin,previous_close,open_price,high_price,low_price,last_price,close_price,total_traded_quantity,turnover,number_of_trades,source_report,source_format_version
+2026-08-14,NSE,ACME,EQ,INE000A01010,100,101.25,103,99.5,102,102.5,2000,205000,42,capital-market-bhavcopy-2026-08-14.zip,capital-market-bhavcopy-udiff-v1
